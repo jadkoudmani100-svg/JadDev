@@ -4011,5 +4011,57 @@
       syncAuthUI();
     })();
   </script>
-</body>
-</html>
+  <script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://mcfgvljgqcoaitzrszrt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_GFd8GGetW9Q-h1oz5fEFug_7F-sRm2E';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  window.jadDevSupabase = supabase;
+
+  async function fetchProjects() {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase fetch error:', error.message);
+      return;
+    }
+
+    console.log('JadDev live projects:', data);
+    window.dispatchEvent(new CustomEvent('jaddev:projects-updated', { detail: data }));
+  }
+
+  window.addProject = async function (name, status = 'In Progress', notes = '') {
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([{ name, status, notes, updated_at: new Date().toISOString() }])
+      .select();
+
+    if (error) {
+      console.error('Supabase insert error:', error.message);
+      return null;
+    }
+    return data?.[0] || null;
+  };
+
+  supabase
+    .channel('jaddev-projects-realtime')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'projects' },
+      () => {
+        fetchProjects();
+      }
+    )
+    .subscribe((status) => {
+      console.log('JadDev Realtime status:', status);
+    });
+
+  fetchProjects();
+</script>
+ </body>
+ </html>
