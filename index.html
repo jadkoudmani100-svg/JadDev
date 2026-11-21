@@ -1,0 +1,4015 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#05070c" />
+  <title>JadDev | Jad Koudmani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-obsidian: #05070c;
+      --bg-elevated: #0d1320;
+      --bg-card-hover: #131c30;
+      --border-subtle: rgba(148, 163, 184, 0.15);
+      --neon-blue: #3b82f6;
+      --neon-cyan: #22d3ee;
+      --neon-emerald: #10b981;
+      --neon-amber: #f59e0b;
+      --neon-rose: #f43f5e;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+    }
+
+    button, a, input, textarea, select {
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      width: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg-obsidian);
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: var(--bg-obsidian);
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.18), transparent 42%),
+        radial-gradient(circle at 88% 85%, rgba(34, 211, 238, 0.11), transparent 45%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      width: 100%;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #22d3ee, #10b981);
+      z-index: 160;
+      pointer-events: none;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.55);
+    }
+
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translate3d(0, 16px, 0) scale(0.988);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+    }
+
+    @keyframes chipPop {
+      0% { opacity: 0; transform: scale(0.78); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.45; }
+    }
+
+    @keyframes bellRing {
+      0%, 100% { transform: rotate(0deg); }
+      15% { transform: rotate(14deg); }
+      30% { transform: rotate(-12deg); }
+      45% { transform: rotate(8deg); }
+      60% { transform: rotate(-4deg); }
+      75% { transform: rotate(0deg); }
+    }
+
+    @keyframes shakeError {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      20%, 60% { transform: translate3d(-6px, 0, 0); }
+      40%, 80% { transform: translate3d(6px, 0, 0); }
+    }
+
+    .animate-enter {
+      animation: fadeSlideUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .shake {
+      animation: shakeError 0.32s ease;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 70;
+      background: rgba(5, 7, 12, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.3);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .brand:active .brand-mark {
+      transform: scale(0.88) rotate(-8deg);
+    }
+
+    .brand-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .brand-name span {
+      color: var(--neon-cyan);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: nowrap;
+    }
+
+    .icon-nav-btn {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease;
+    }
+
+    .icon-nav-btn:active {
+      transform: scale(0.88);
+    }
+
+    .icon-nav-btn.has-unread svg {
+      animation: bellRing 2.8s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: var(--neon-rose);
+      color: #fff;
+      font-size: 0.66rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    .notif-badge.hidden {
+      transform: scale(0);
+    }
+
+    .account-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .account-btn:active {
+      transform: scale(0.92);
+    }
+
+    .add-project-btn {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      height: 38px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, 0.42);
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .add-project-btn.visible {
+      display: inline-flex;
+    }
+
+    .add-project-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Admin Control Bar */
+    .owner-bar {
+      display: none;
+      max-width: 1120px;
+      margin: 14px auto 0;
+      padding: 0 16px;
+    }
+
+    .owner-bar.visible {
+      display: block;
+      animation: fadeSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .owner-bar-inner {
+      background: linear-gradient(135deg, rgba(13, 22, 38, 0.96), rgba(9, 25, 36, 0.96));
+      border: 1px solid rgba(34, 211, 238, 0.28);
+      border-radius: 24px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .owner-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .owner-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #22d3ee;
+    }
+
+    .owner-quick-kpis {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .owner-kpi-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
+
+    .owner-kpi-pill strong {
+      color: var(--text-primary);
+    }
+
+    .owner-bar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .pill-action {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.79rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .pill-action:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .pill-action:active {
+      transform: scale(0.93);
+    }
+
+    .pill-action.accent-blue {
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.38);
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .pill-action.accent-emerald {
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.38);
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .pill-action.danger {
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.35);
+      background: rgba(244, 63, 94, 0.12);
+    }
+
+    /* Hero */
+    .hero {
+      max-width: 1120px;
+      margin: 26px auto 18px;
+      padding: 0 16px;
+      text-align: center;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 15px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      font-size: 0.79rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.75rem, 6vw, 2.9rem);
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 .grad {
+      background: linear-gradient(90deg, #60a5fa, #22d3ee, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      max-width: 610px;
+      margin: 0 auto 20px;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      max-width: 500px;
+      margin: 0 auto 22px;
+    }
+
+    .stat-chip {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 22px;
+      padding: 11px 8px;
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .stat-chip:active {
+      transform: scale(0.94);
+    }
+
+    .stat-chip strong {
+      color: var(--text-primary);
+      font-size: 1.14rem;
+      line-height: 1.2;
+    }
+
+    /* Controls */
+    .controls-box {
+      max-width: 1120px;
+      margin: 0 auto 26px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-secondary);
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-clear-btn.visible {
+      display: inline-flex;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 44px 0 40px;
+      border-radius: 22px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.91rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: rgba(34, 211, 238, 0.45);
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 580px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex-shrink: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 8px 17px;
+      border-radius: 999px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.13);
+      border-color: rgba(255, 255, 255, 0.28);
+      color: var(--text-primary);
+    }
+
+    .tab-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Sections */
+    .section {
+      max-width: 1120px;
+      margin: 0 auto 38px;
+      padding: 0 16px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    .count-pill {
+      font-size: 0.78rem;
+      padding: 3px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Card (Square Cover 1:1 on main grid) */
+    .card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 28px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeSlideUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(148, 163, 184, 0.25);
+    }
+
+    .card:active {
+      transform: scale(0.982);
+    }
+
+    .card-cover-wrap {
+      position: relative;
+      margin: 0 auto 14px;
+      width: 100%;
+      max-width: 240px;
+      aspect-ratio: 1 / 1;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: #070b13;
+    }
+
+    .card-cover {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 17px;
+      background: rgba(59, 130, 246, 0.13);
+      border: 1px solid rgba(59, 130, 246, 0.26);
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .icon-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      display: inline-block;
+      animation: pulseDot 1.8s ease-in-out infinite;
+    }
+
+    .badge-offline {
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.32);
+    }
+
+    .badge-online {
+      background: rgba(59, 130, 246, 0.14);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.32);
+    }
+
+    .badge-meta {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+    }
+
+    .card h3 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-bottom: 13px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      font-size: 0.74rem;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    /* Real Download Progress Bar inside Card */
+    .dl-progress-box {
+      display: none;
+      background: rgba(7, 13, 25, 0.92);
+      border: 1px solid rgba(34, 211, 238, 0.32);
+      border-radius: 18px;
+      padding: 11px 13px;
+      margin-bottom: 12px;
+    }
+
+    .dl-progress-box.active,
+    .dl-progress-box.done {
+      display: block;
+      animation: fadeSlideUp 0.25s ease both;
+    }
+
+    .dl-progress-box.done {
+      border-color: rgba(16, 185, 129, 0.45);
+      background: rgba(6, 28, 22, 0.92);
+    }
+
+    .dl-header-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .dl-status-label {
+      color: var(--neon-cyan);
+    }
+
+    .dl-progress-box.done .dl-status-label {
+      color: #34d399;
+    }
+
+    .dl-pct-label {
+      color: var(--text-primary);
+    }
+
+    .dl-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .dl-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #2563eb, #22d3ee, #10b981);
+      transition: width 0.12s linear;
+    }
+
+    .dl-progress-box.done .dl-fill {
+      width: 100%;
+      background: linear-gradient(90deg, #059669, #34d399);
+    }
+
+    .dl-telemetry-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .dl-telemetry-row span strong {
+      color: var(--text-primary);
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: auto;
+    }
+
+    .btn {
+      flex: 1;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 12px;
+      border-radius: 18px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.93);
+    }
+
+    .btn-offline {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+    }
+
+    .btn-install {
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.28);
+    }
+
+    .btn-downloading {
+      background: rgba(34, 211, 238, 0.16);
+      color: #67e8f9;
+      border: 1px solid rgba(34, 211, 238, 0.35);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff;
+    }
+
+    .btn-edit {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-del {
+      background: rgba(244, 63, 94, 0.14);
+      color: #fda4af;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-copy {
+      flex: 0 0 42px;
+      padding: 0;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Info Banner */
+    .info-banner {
+      max-width: 1120px;
+      margin: 0 auto 42px;
+      padding: 0 16px;
+    }
+
+    .info-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08));
+      border: 1px solid var(--border-subtle);
+      border-radius: 28px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .info-card h3 {
+      font-size: 1.02rem;
+      font-weight: 800;
+    }
+
+    .info-card p {
+      color: var(--text-secondary);
+      font-size: 0.86rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 34px 18px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 26px;
+      font-size: 0.89rem;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 5, 10, 0.88);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+      z-index: 110;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    @media (min-width: 600px) {
+      .modal-backdrop {
+        align-items: center;
+        padding: 20px;
+      }
+    }
+
+    .modal-backdrop.open {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #0c1220;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 30px;
+      padding: 22px;
+      box-shadow: 0 22px 54px rgba(0, 0, 0, 0.82);
+      will-change: transform;
+      transform: translate3d(0, 24px, 0);
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 1rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .modal-close:active {
+      transform: scale(0.9);
+    }
+
+    /* Instagram-style Carousel inside "الميزات" modal */
+    .modal-section-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .insta-carousel {
+      position: relative;
+      margin-bottom: 16px;
+      background: #060911;
+      border: 1px solid var(--border-subtle);
+      border-radius: 22px;
+      padding: 10px;
+    }
+
+    .insta-counter-pill {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 4;
+      background: rgba(5, 7, 12, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .insta-track {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      gap: 10px;
+      scrollbar-width: none;
+      border-radius: 16px;
+    }
+
+    .insta-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .insta-slide {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-in;
+    }
+
+    .insta-slide img {
+      width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+      border-radius: 16px;
+      display: block;
+    }
+
+    .insta-nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 8px;
+    }
+
+    .insta-arrow-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .insta-arrow-btn:active {
+      transform: scale(0.9);
+    }
+
+    .insta-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .insta-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.35);
+      border: none;
+      cursor: pointer;
+      transition: width 0.2s ease, background 0.2s ease;
+    }
+
+    .insta-dot.active {
+      width: 18px;
+      background: var(--neon-cyan);
+    }
+
+    /* Fullscreen Lightbox */
+    .lightbox-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 4, 8, 0.96);
+      z-index: 260;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .lightbox-backdrop.open {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-img {
+      max-width: 100%;
+      max-height: 84vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .lightbox-close-btn {
+      margin-top: 14px;
+      padding: 9px 22px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin: 12px 0 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.87rem;
+      color: #e2e8f0;
+    }
+
+    /* Feature Tag Builder */
+    .feature-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .add-tag-btn {
+      padding: 0 15px;
+      border-radius: 18px;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      background: rgba(59, 130, 246, 0.16);
+      color: #93c5fd;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .add-tag-btn:active {
+      transform: scale(0.93);
+    }
+
+    .preset-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 9px;
+    }
+
+    .preset-chip {
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .preset-chip:active {
+      transform: scale(0.9);
+      color: var(--text-primary);
+    }
+
+    .added-features-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      min-height: 10px;
+    }
+
+    .feature-chip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+      font-size: 0.78rem;
+      font-weight: 700;
+      animation: chipPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .remove-chip-btn {
+      background: none;
+      border: none;
+      color: #fca5a5;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+    }
+
+    /* Image picker previews */
+    .single-cover-preview {
+      margin-top: 8px;
+      position: relative;
+      width: 150px;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .single-cover-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-del-btn {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(5, 7, 12, 0.88);
+      color: #fca5a5;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .multi-img-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .multi-thumb-card {
+      position: relative;
+      width: 82px;
+      height: 82px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .multi-thumb-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .multi-thumb-del {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(5, 7, 12, 0.85);
+      color: #fca5a5;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Admin Manager */
+    .admin-toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .admin-manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .admin-manage-row {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .admin-manage-info strong {
+      display: block;
+      font-size: 0.9rem;
+    }
+
+    .admin-manage-info span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .admin-row-btns {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .mini-btn {
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+    }
+
+    .mini-btn.edit {
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.35);
+      background: rgba(245, 158, 11, 0.14);
+    }
+
+    .mini-btn.del {
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.35);
+      background: rgba(244, 63, 94, 0.14);
+    }
+
+    /* Notification Drawer */
+    .notif-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .mini-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mini-action:active {
+      transform: scale(0.95);
+      color: var(--text-primary);
+    }
+
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      max-height: 55vh;
+      overflow-y: auto;
+    }
+
+    .notif-item {
+      padding: 12px 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      cursor: pointer;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .notif-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .notif-item.unread {
+      background: rgba(34, 211, 238, 0.08);
+      border-color: rgba(34, 211, 238, 0.3);
+    }
+
+    .notif-brand-img {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(34, 211, 238, 0.38);
+    }
+
+    .notif-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-source-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      margin-bottom: 2px;
+    }
+
+    .notif-content h4 {
+      font-size: 0.88rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .notif-content p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .notif-time {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Live Floating Notification Banner */
+    .live-banner {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      width: calc(100% - 28px);
+      max-width: 450px;
+      transform: translate3d(-50%, -145%, 0);
+      background: #0d1526;
+      border: 1px solid rgba(34, 211, 238, 0.48);
+      border-radius: 24px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75);
+      z-index: 230;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    }
+
+    .live-banner.show {
+      transform: translate3d(-50%, 0, 0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .live-banner-brand-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(34, 211, 238, 0.42);
+    }
+
+    .live-banner-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .live-banner-site {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      line-height: 1.2;
+      margin-bottom: 1px;
+    }
+
+    .live-banner-text strong {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .live-banner-text span {
+      display: block;
+      font-size: 0.77rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.89rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      margin-bottom: 13px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #34d399;
+      cursor: pointer;
+    }
+
+    .file-drop {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px dashed rgba(148, 163, 184, 0.32);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    /* Profile Card */
+    .profile-hero-card {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(16, 185, 129, 0.1));
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 24px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 14px;
+    }
+
+    .profile-avatar-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .profile-avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-meta-text h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .profile-meta-text p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+
+    .profile-role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .profile-mini-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .profile-stat-box {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 11px 12px;
+      text-align: center;
+    }
+
+    .profile-stat-box strong {
+      display: block;
+      font-size: 1.08rem;
+      color: var(--text-primary);
+    }
+
+    .profile-stat-box span {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .error-msg {
+      color: #fb7185;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 22px 16px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    footer strong {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-progress" id="scroll-progress"></div>
+
+  <!-- Live Floating Notification Banner -->
+  <div class="live-banner" id="live-banner" onclick="handleBannerClick()">
+    <img id="live-banner-img" class="live-banner-brand-img" alt="JadDev" />
+    <div class="live-banner-text">
+      <span class="live-banner-site mono">JadDev</span>
+      <strong id="live-banner-title">إشعار جديد</strong>
+      <span id="live-banner-body">تفاصيل الإشعار</span>
+    </div>
+  </div>
+
+  <!-- Fullscreen Lightbox for Detail Images -->
+  <div class="lightbox-backdrop" id="lightbox-backdrop" onclick="closeLightbox()">
+    <img id="lightbox-img" class="lightbox-img" alt="عرض كامل" onclick="event.stopPropagation()" />
+    <button type="button" class="lightbox-close-btn" onclick="closeLightbox()">إغلاق العرض الكامل</button>
+  </div>
+
+  <!-- Navbar -->
+  <header>
+    <div class="nav-wrap">
+      <a href="#" class="brand">
+        <div class="brand-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+        </div>
+        <div class="brand-name mono">Jad<span>Dev</span></div>
+      </a>
+      <div class="nav-actions">
+        <button type="button" class="icon-nav-btn" id="notif-bell-btn" onclick="openNotifModal()" aria-label="الإشعارات">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="notif-badge mono" id="notif-badge">0</span>
+        </button>
+
+        <button type="button" class="account-btn" id="account-btn" onclick="openAccountModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span id="account-btn-text">تسجيل الدخول</span>
+        </button>
+
+        <button type="button" class="add-project-btn" id="header-add-btn" onclick="openAddModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>إضافة</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Enhanced Admin Control Bar -->
+  <div class="owner-bar" id="owner-bar">
+    <div class="owner-bar-inner">
+      <div class="owner-top-row">
+        <div class="owner-status">
+          <span class="pulse-dot"></span>
+          <span>لوحة الأدمن المطوّرة — Jad Koudmani</span>
+        </div>
+        <div class="owner-quick-kpis" id="owner-quick-kpis"></div>
+      </div>
+      <div class="owner-bar-actions">
+        <button type="button" class="pill-action accent-emerald" onclick="openAddModal()">+ إضافة برنامج / موقع</button>
+        <button type="button" class="pill-action accent-blue" onclick="openManageModal()">إدارة المشاريع</button>
+        <button type="button" class="pill-action" onclick="openBroadcastModal()">إرسال إشعار</button>
+        <button type="button" class="pill-action" onclick="requestSystemPushPermission()">تفعيل إشعارات النظام</button>
+        <button type="button" class="pill-action danger" onclick="logoutUser()">تسجيل الخروج</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero animate-enter">
+    <div class="hero-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      <span>منصة أعمال Jad Koudmani البرمجية</span>
+    </div>
+    <h1><span class="grad mono">JadDev</span> — تطبيقات ومواقع قابلة للتجربة</h1>
+    <p>
+      حمّل برامجي وألعابي على موبايلك وجرّبها بكامل ميزاتها مع دعم كامل لوضع <strong>Offline</strong>، أو تصفّح مواقعي ومنصاتي مباشرة.
+    </p>
+    <div class="stats-row" id="stats-row"></div>
+  </section>
+
+  <!-- Smart Search & Tabs -->
+  <div class="controls-box animate-enter">
+    <div class="search-wrapper">
+      <svg class="search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="ابحث ذكياً بالاسم، الميزة، الإصدار، أو النوع..."
+        oninput="handleSearchInput(this)"
+      />
+      <button type="button" class="search-clear-btn" id="search-clear-btn" onclick="clearSearchInput()" aria-label="مسح البحث">✕</button>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-filter="all" onclick="setFilter('all', this)">الكل</button>
+      <button type="button" class="tab-btn" data-filter="offline" onclick="setFilter('offline', this)">يعمل Offline</button>
+      <button type="button" class="tab-btn" data-filter="app" onclick="setFilter('app', this)">تطبيقات APK</button>
+      <button type="button" class="tab-btn" data-filter="website" onclick="setFilter('website', this)">مواقع ومنصات</button>
+    </div>
+  </div>
+
+  <!-- Apps Section -->
+  <main class="section" id="apps-section">
+    <div class="section-head">
+      <h2 class="section-heading">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.2">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+          <line x1="12" y1="18" x2="12.01" y2="18"></line>
+        </svg>
+        تطبيقات وبرامج الموبايل
+      </h2>
+      <span class="count-pill mono" id="apps-count">0</span>
+    </div>
+    <div class="grid" id="apps-grid"></div>
+  </main>
+
+  <!-- Websites Section -->
+  <section class="section" id="websites-section">
+    <div class="section-head">
+      <h2 class="section-heading">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        مواقعي ومنصاتي
+      </h2>
+      <span class="count-pill mono" id="sites-count">0</span>
+    </div>
+    <div class="grid" id="sites-grid"></div>
+  </section>
+
+  <!-- Offline Info -->
+  <section class="info-banner">
+    <div class="info-card">
+      <span class="badge badge-offline mono"><span class="pulse-dot"></span> OFFLINE READY</span>
+      <h3>تطبيقات تعمل بدون إنترنت بعد التثبيت</h3>
+      <p>
+        أي برنامج يحمل علامة <strong>Offline</strong> يخزّن بياناته محلياً على هاتفك، فبمجرد تحميله وتثبيته يعمل بكامل ميزاته حتى بدون اتصال بالشبكة.
+      </p>
+    </div>
+  </section>
+
+  <!-- Modal: Delete Confirmation ("متأكد أو لا") -->
+  <div class="modal-backdrop" id="confirm-delete-backdrop" onclick="closeDeleteConfirm()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fda4af;">تأكيد الحذف</h3>
+        <button type="button" class="modal-close" onclick="closeDeleteConfirm()">✕</button>
+      </div>
+      <p id="delete-confirm-text" style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 18px;">
+        هل أنت متأكد أنك تريد حذف هذا العنصر؟
+      </p>
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn btn-del" onclick="confirmDeleteAction()">متأكد، احذف</button>
+        <button type="button" class="btn btn-ghost" onclick="closeDeleteConfirm()">لا، إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Project Details & Instagram Carousel ("الميزات") -->
+  <div class="modal-backdrop" id="modal-backdrop" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 id="modal-title" style="font-size: 1.18rem; font-weight: 800;"></h3>
+        <button type="button" class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-badges" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div>
+      <p id="modal-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom:14px;"></p>
+
+      <span class="modal-section-label">الميزات التفصيلية</span>
+      <ul class="feature-list" id="modal-features"></ul>
+
+      <div id="modal-gallery-section"></div>
+
+      <div id="modal-cta" style="display:flex; gap:8px; margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Full Admin Manager -->
+  <div class="modal-backdrop" id="manage-modal-backdrop" onclick="closeManageModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">إدارة المشاريع والأدوات</h3>
+        <button type="button" class="modal-close" onclick="closeManageModal()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <input
+          type="text"
+          id="admin-search-input"
+          class="form-control"
+          placeholder="ابحث داخل لوحة الإدارة..."
+          oninput="renderAdminManageList()"
+        />
+      </div>
+
+      <div class="admin-toolbar-row">
+        <select id="admin-sort-select" class="form-control" style="width:auto; padding:6px 12px; font-size:0.78rem;" onchange="renderAdminManageList()">
+          <option value="newest">الأحدث أولاً</option>
+          <option value="oldest">الأقدم أولاً</option>
+          <option value="title">حسب الاسم (أ - ي)</option>
+        </select>
+        <button type="button" class="mini-action" onclick="exportProjectsJSON()">تصدير نسخة احتياطية</button>
+        <label class="mini-action" for="import-json-input" style="cursor:pointer;">استيراد JSON</label>
+        <input type="file" id="import-json-input" accept=".json,application/json" style="display:none;" onchange="importProjectsJSON(this)" />
+        <button type="button" class="mini-action" onclick="clearNotifs()">مسح الإشعارات</button>
+      </div>
+
+      <div class="admin-manage-list" id="admin-manage-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Notification Center -->
+  <div class="modal-backdrop" id="notif-modal-backdrop" onclick="closeNotifModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">إشعارات JadDev</h3>
+        <button type="button" class="modal-close" onclick="closeNotifModal()">✕</button>
+      </div>
+      <div class="notif-toolbar">
+        <button type="button" class="mini-action" onclick="requestSystemPushPermission()">تفعيل إشعارات الجهاز</button>
+        <button type="button" class="mini-action" onclick="markAllNotifsRead()">تحديد الكل كمقروء</button>
+        <button type="button" class="mini-action" onclick="clearNotifs()">مسح السجل</button>
+      </div>
+      <div class="notif-list" id="notif-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Login -->
+  <div class="modal-backdrop" id="login-modal-backdrop" onclick="closeLoginModal()">
+    <div class="modal-card" id="login-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 style="font-size: 1.14rem; font-weight: 800;">تسجيل الدخول</h3>
+        <button type="button" class="modal-close" onclick="closeLoginModal()">✕</button>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.84rem; margin-bottom: 14px;">
+        سجّل الدخول بحسابك لفتح ملفك الشخصي ومتابعة التحديثات في <strong>JadDev</strong>.
+      </p>
+      <form onsubmit="submitLogin(event)">
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="login-email" class="form-control mono" placeholder="name@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>كلمة المرور</label>
+          <input type="password" id="login-pass" class="form-control mono" placeholder="••••••••" required />
+        </div>
+        <div class="error-msg" id="login-error">يرجى إدخال بريد إلكتروني وكلمة مرور صحيحة.</div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">تسجيل الدخول</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Profile Page -->
+  <div class="modal-backdrop" id="account-modal-backdrop" onclick="closeAccountModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 style="font-size: 1.16rem; font-weight: 800;">الملف الشخصي</h3>
+        <button type="button" class="modal-close" onclick="closeAccountModal()">✕</button>
+      </div>
+      <div id="profile-dynamic-content"></div>
+      <button type="button" class="btn btn-ghost" style="width:100%; color:#fca5a5; margin-top:6px;" onclick="logoutUser()">تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit App or Website -->
+  <div class="modal-backdrop" id="add-modal-backdrop" onclick="closeAddModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 id="add-modal-title" style="font-size: 1.12rem; font-weight: 800;">إضافة برنامج أو موقع</h3>
+        <button type="button" class="modal-close" onclick="closeAddModal()">✕</button>
+      </div>
+
+      <form id="add-form" onsubmit="saveProjectForm(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>النوع</label>
+            <select id="proj-type" class="form-control" onchange="toggleProjectTypeFields()">
+              <option value="app">تطبيق / برنامج (APK)</option>
+              <option value="website">موقع إلكتروني</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>الإصدار / التصنيف</label>
+            <input type="text" id="proj-version" class="form-control" placeholder="مثال: v1.0" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>اسم البرنامج أو الموقع</label>
+          <input type="text" id="proj-title" class="form-control" placeholder="اكتب الاسم هنا..." required />
+        </div>
+
+        <!-- 1. Square Main Cover Image (Shown on Card) -->
+        <div class="form-group">
+          <label>1. الصورة الرئيسية للبرنامج (تظهر مربعة 1:1 على البطاقة الرئيسية)</label>
+          <label class="file-drop" for="proj-cover-input">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span id="cover-label-text">اختر الصورة الرئيسية من المعرض</span>
+          </label>
+          <input type="file" id="proj-cover-input" accept="image/*" style="display:none;" onchange="handleCoverImagePick(this)" />
+          <div id="single-cover-preview"></div>
+        </div>
+
+        <!-- 2. Instagram-style Additional Images (Shown inside "الميزات" modal) -->
+        <div class="form-group">
+          <label>2. صور إضافية للشرح (تظهر داخل "الميزات" كسلايدر للتقليب مثل إنستغرام)</label>
+          <label class="file-drop" for="proj-detail-images-input">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <circle cx="8.5" cy="10" r="1.5"></circle>
+              <path d="M21 15l-5-5L5 20"></path>
+            </svg>
+            <span id="detail-imgs-label-text">أضف صورة إضافية أو عدة صور للتقليب</span>
+          </label>
+          <input type="file" id="proj-detail-images-input" accept="image/*" multiple style="display:none;" onchange="handleDetailImagesPick(this)" />
+          <div class="multi-img-preview" id="detail-imgs-preview"></div>
+        </div>
+
+        <div class="form-group">
+          <label>وصف مختصر</label>
+          <textarea id="proj-desc" class="form-control" rows="2" placeholder="اشرح فكرة البرنامج أو الموقع..." required></textarea>
+        </div>
+
+        <div id="app-only-fields">
+          <label class="checkbox-row">
+            <input type="checkbox" id="proj-offline" checked />
+            <span>يدعم العمل بدون إنترنت (Offline Ready)</span>
+          </label>
+
+          <div class="form-group">
+            <label>إرفاق ملف البرنامج مباشرة (يُخزّن للتحميل دون تنزيله على جهازك الآن)</label>
+            <label class="file-drop" for="proj-file">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span id="file-label-text">اضغط لاختيار ملف APK أو HTML مباشرة</span>
+            </label>
+            <input type="file" id="proj-file" style="display:none;" onchange="handleFilePick(this)" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="url-label">رابط تحميل APK المباشر (اختياري إذا أرفقت ملفاً)</label>
+          <input type="text" id="proj-url" class="form-control" placeholder="https://..." />
+        </div>
+
+        <div class="form-group">
+          <label>إضافة الميزات (اكتب ميزة واضغط إضافة أو اختر من الجاهز)</label>
+          <div class="feature-input-row">
+            <input
+              type="text"
+              id="feature-single-input"
+              class="form-control"
+              placeholder="مثال: يعمل بدون إنترنت"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();addFeatureChip();}"
+            />
+            <button type="button" class="add-tag-btn" onclick="addFeatureChip()">+ إضافة</button>
+          </div>
+          <div class="preset-tags">
+            <button type="button" class="preset-chip" onclick="quickAddFeature('يعمل أوفلاين')">+ يعمل أوفلاين</button>
+            <button type="button" class="preset-chip" onclick="quickAddFeature('واجهة داكنة')">+ واجهة داكنة</button>
+            <button type="button" class="preset-chip" onclick="quickAddFeature('سريع وخفيف')">+ سريع وخفيف</button>
+            <button type="button" class="preset-chip" onclick="quickAddFeature('متوافق مع الموبايل')">+ متوافق مع الموبايل</button>
+          </div>
+          <div class="added-features-box" id="added-features-box"></div>
+        </div>
+
+        <button type="submit" id="save-proj-btn" class="btn btn-offline" style="width:100%; margin-top:8px;">
+          نشر في الموقع
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Broadcast Notification -->
+  <div class="modal-backdrop" id="broadcast-modal-backdrop" onclick="closeBroadcastModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <h3 style="font-size: 1.12rem; font-weight: 800;">إرسال إشعار من JadDev</h3>
+        <button type="button" class="modal-close" onclick="closeBroadcastModal()">✕</button>
+      </div>
+      <form onsubmit="sendBroadcast(event)">
+        <div class="form-group">
+          <label>عنوان الإشعار</label>
+          <input type="text" id="bc-title" class="form-control" placeholder="مثال: تم إطلاق تطبيق جديد!" required />
+        </div>
+        <div class="form-group">
+          <label>نص الإشعار</label>
+          <textarea id="bc-body" class="form-control" rows="2" placeholder="اكتب تفاصيل التحديث..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">إرسال الإشعار الآن</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>تطوير وبرمجة <strong>Jad Koudmani</strong> — <span class="mono">JadDev</span></p>
+  </footer>
+
+  <script>
+    const BRAND_NAME = "JadDev";
+    const OWNER_CREDENTIALS = {
+      email: "jadkoudmani100@gmail.com",
+      pass: "Jadkoudmani572010"
+    };
+
+    const USER_SESSION_KEY = "jaddev_user_session_v15";
+    const PROFILE_META_KEY = "jaddev_profile_meta_v15";
+    const NOTIF_STORAGE_KEY = "jaddev_notifs_v15";
+    const DB_NAME = "JadDevStorageDB_v15";
+    const STORE_NAME = "projects";
+
+    let currentUser = JSON.parse(localStorage.getItem(USER_SESSION_KEY) || "null");
+    let profileMetaMap = JSON.parse(localStorage.getItem(PROFILE_META_KEY) || "{}");
+    let projectsList = [];
+    let draftFeatures = [];
+    let pickedCoverImage = "";
+    let pickedDetailImages = [];
+    let editingProjectId = null;
+    let pendingDeleteId = null;
+    let activeBannerProjectId = null;
+    let jadDevBrandArtworkDataUrl = "";
+    let notifications = JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || "null") || [
+      {
+        id: "welcome-1",
+        title: "أهلاً بك في JadDev",
+        body: "منصة أعمال وتطبيقات Jad Koudmani الرسمية.",
+        time: "الآن",
+        unread: true,
+        projectId: null
+      }
+    ];
+
+    // Real Chrome download tracker per projectId
+    const downloadStates = new Map();
+
+    let pickedFileBlob = null;
+    let pickedFileName = "";
+    let pickedFileSize = "";
+    let activeFilter = "all";
+    let searchQuery = "";
+    let searchDebounceTimer = null;
+    let bannerTimeout = null;
+    let dbInstance = null;
+
+    function createJadDevArtwork() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext("2d");
+
+      const bgGrad = ctx.createLinearGradient(0, 0, 256, 256);
+      bgGrad.addColorStop(0, "#091124");
+      bgGrad.addColorStop(0.55, "#0f2347");
+      bgGrad.addColorStop(1, "#062c26");
+      ctx.fillStyle = bgGrad;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, 256, 256, 56);
+      ctx.fill();
+
+      const badgeGrad = ctx.createLinearGradient(68, 34, 188, 154);
+      badgeGrad.addColorStop(0, "#2563eb");
+      badgeGrad.addColorStop(1, "#06b6d4");
+      ctx.fillStyle = badgeGrad;
+      ctx.beginPath();
+      ctx.roundRect(68, 34, 120, 120, 34);
+      ctx.fill();
+
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 11;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      ctx.beginPath();
+      ctx.moveTo(112, 72);
+      ctx.lineTo(90, 94);
+      ctx.lineTo(112, 116);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(144, 72);
+      ctx.lineTo(166, 94);
+      ctx.lineTo(144, 116);
+      ctx.stroke();
+
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "800 38px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Jad", 104, 198);
+
+      ctx.fillStyle = "#22d3ee";
+      ctx.fillText("Dev", 162, 198);
+
+      return canvas.toDataURL("image/png");
+    }
+
+    function getJadDevArtwork() {
+      if (!jadDevBrandArtworkDataUrl) {
+        jadDevBrandArtworkDataUrl = createJadDevArtwork();
+      }
+      return jadDevBrandArtworkDataUrl;
+    }
+
+    function escapeHTML(str = "") {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function sanitizeUrl(url = "") {
+      const trimmed = String(url).trim();
+      if (!trimmed || trimmed === "#") return "#";
+      if (
+        trimmed.startsWith("https://") ||
+        trimmed.startsWith("http://") ||
+        trimmed.startsWith("blob:")
+      ) {
+        return trimmed;
+      }
+      return "#";
+    }
+
+    function isOwner() {
+      return currentUser && currentUser.role === "owner";
+    }
+
+    function getUserProfileMeta(email) {
+      return profileMetaMap[email] || { bio: "", avatar: "" };
+    }
+
+    function saveUserProfileMeta(email, data) {
+      profileMetaMap[email] = {
+        ...getUserProfileMeta(email),
+        ...data
+      };
+      try {
+        localStorage.setItem(PROFILE_META_KEY, JSON.stringify(profileMetaMap));
+      } catch (e) {}
+    }
+
+    function registerServiceWorker() {
+      if ("serviceWorker" in navigator) {
+        const swCode = `
+          self.addEventListener("install", () => self.skipWaiting());
+          self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
+          self.addEventListener("notificationclick", (event) => {
+            event.notification.close();
+            event.waitUntil(
+              clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+                if (clientList.length > 0) return clientList[0].focus();
+                return clients.openWindow("/");
+              })
+            );
+          });
+        `;
+        const swBlob = new Blob([swCode], { type: "application/javascript" });
+        const swUrl = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl).catch(() => {});
+      }
+    }
+
+    async function requestSystemPushPermission() {
+      if (!("Notification" in window)) {
+        pushNotification("الإشعارات", "متصفحك يدعم الإشعارات الداخلية في JadDev.", true, false);
+        return;
+      }
+      if (Notification.permission === "granted") {
+        triggerSystemNotification("إشعارات النظام مفعّلة", "ستصلك إشعارات JadDev مع اسم وصورة الموقع.");
+        pushNotification("إشعارات النظام مفعّلة", "تم إرسال إشعار اختبار من JadDev.", true, false);
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm === "granted") {
+        triggerSystemNotification("تم تفعيل الإشعارات", "ستصلك إشعارات التحديثات من JadDev.");
+        pushNotification("تم تفعيل الإشعارات", "تم تفعيل إشعارات الجهاز بنجاح.", true, false);
+      } else {
+        pushNotification("تنبيه الإشعارات", "تم الإبقاء على الإشعارات داخل JadDev.", true, false);
+      }
+    }
+
+    async function triggerSystemNotification(title, body) {
+      const art = getJadDevArtwork();
+      const formattedTitle = `${BRAND_NAME} — ${title}`;
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          if ("serviceWorker" in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            await reg.showNotification(formattedTitle, {
+              body,
+              icon: art,
+              badge: art,
+              image: art,
+              vibrate: [120, 60, 120],
+              tag: "jaddev-event-" + Date.now()
+            });
+            return;
+          }
+          new Notification(formattedTitle, { body, icon: art });
+        } catch (e) {}
+      }
+    }
+
+    function initDB() {
+      return new Promise((resolve) => {
+        if (!window.indexedDB) {
+          resolve(null);
+          return;
+        }
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function normalizeProjectItem(item) {
+      const cover = item.coverImage || item.image || "";
+      const details = Array.isArray(item.detailImages)
+        ? item.detailImages
+        : (Array.isArray(item.images) && item.images.length > 1 ? item.images.slice(1) : []);
+      const resolvedUrl = item.fileBlob
+        ? URL.createObjectURL(item.fileBlob)
+        : sanitizeUrl(item.url);
+
+      return {
+        ...item,
+        coverImage: cover,
+        detailImages: details,
+        url: resolvedUrl
+      };
+    }
+
+    function loadProjectsFromDB() {
+      return new Promise((resolve) => {
+        if (!dbInstance) {
+          const raw = JSON.parse(localStorage.getItem("jaddev_fallback_projects_v15") || "[]");
+          projectsList = raw.map(normalizeProjectItem);
+          resolve();
+          return;
+        }
+        const tx = dbInstance.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          const items = req.result || [];
+          items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          projectsList = items.map(normalizeProjectItem);
+          resolve();
+        };
+        req.onerror = () => resolve();
+      });
+    }
+
+    function upsertProjectInDB(project) {
+      return new Promise((resolve) => {
+        const displayCopy = normalizeProjectItem(project);
+
+        if (!dbInstance) {
+          const idx = projectsList.findIndex(p => p.id === project.id);
+          if (idx >= 0) projectsList[idx] = displayCopy;
+          else projectsList.unshift(displayCopy);
+          try {
+            localStorage.setItem("jaddev_fallback_projects_v15", JSON.stringify(projectsList));
+          } catch (e) {}
+          resolve();
+          return;
+        }
+        const tx = dbInstance.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        store.put(project);
+        tx.oncomplete = () => {
+          const idx = projectsList.findIndex(p => p.id === project.id);
+          if (idx >= 0) projectsList[idx] = displayCopy;
+          else projectsList.unshift(displayCopy);
+          resolve();
+        };
+        tx.onerror = () => resolve();
+      });
+    }
+
+    function deleteProjectFromDB(id) {
+      return new Promise((resolve) => {
+        const prevState = downloadStates.get(id);
+        if (prevState && prevState.timer) clearInterval(prevState.timer);
+        if (prevState && prevState.savedBlobUrl) {
+          try { URL.revokeObjectURL(prevState.savedBlobUrl); } catch (e) {}
+        }
+        downloadStates.delete(id);
+
+        const target = projectsList.find(p => p.id === id);
+        if (target && target.url && target.url.startsWith("blob:")) {
+          try { URL.revokeObjectURL(target.url); } catch (e) {}
+        }
+        projectsList = projectsList.filter(p => p.id !== id);
+        if (!dbInstance) {
+          localStorage.setItem("jaddev_fallback_projects_v15", JSON.stringify(projectsList));
+          resolve();
+          return;
+        }
+        const tx = dbInstance.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    // Real Browser Download + Real Byte-Stream Progress Calculation
+    function formatRealSpeed(bytesPerSec) {
+      if (!isFinite(bytesPerSec) || bytesPerSec <= 0) return "0 KB/s";
+      if (bytesPerSec >= 1024 * 1024) {
+        return `${(bytesPerSec / (1024 * 1024)).toFixed(2)} MB/s`;
+      }
+      return `${Math.max(1, Math.round(bytesPerSec / 1024))} KB/s`;
+    }
+
+    function formatRealEta(remainingBytes, bytesPerSec) {
+      if (!isFinite(bytesPerSec) || bytesPerSec <= 1024) return "جاري الحساب...";
+      if (remainingBytes <= 0) return "مكتمل";
+      const sec = remainingBytes / bytesPerSec;
+      if (sec < 1) return "أقل من ثانية";
+      if (sec < 60) return `${Math.ceil(sec)} ثانية`;
+      const mins = Math.floor(sec / 60);
+      const rem = Math.ceil(sec % 60);
+      return `${mins} د ${rem} ث`;
+    }
+
+    function triggerChromeDownload(sourceUrlOrBlob, filename) {
+      let href = "";
+      let revokeAfter = false;
+      if (sourceUrlOrBlob instanceof Blob) {
+        href = URL.createObjectURL(sourceUrlOrBlob);
+        revokeAfter = true;
+      } else {
+        href = sanitizeUrl(sourceUrlOrBlob);
+      }
+      if (!href || href === "#") return false;
+
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = filename || "download.apk";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      if (revokeAfter) {
+        setTimeout(() => {
+          try { URL.revokeObjectURL(href); } catch (e) {}
+        }, 8000);
+      }
+      return true;
+    }
+
+    function updateCardDownloadUI(id) {
+      const state = downloadStates.get(id);
+      const box = document.getElementById(`dl-box-${id}`);
+      const actionSlot = document.getElementById(`dl-action-slot-${id}`);
+      if (!box || !actionSlot || !state) return;
+
+      const statusEl = box.querySelector(".dl-status-label");
+      const pctEl = box.querySelector(".dl-pct-label");
+      const fillEl = box.querySelector(".dl-fill");
+      const speedEl = box.querySelector(".dl-speed-val");
+      const etaEl = box.querySelector(".dl-eta-val");
+
+      const pctRounded = Math.min(100, Math.max(0, Math.round(state.pct)));
+      pctEl.textContent = `${pctRounded}%`;
+      fillEl.style.width = `${pctRounded}%`;
+      speedEl.textContent = state.speedText;
+      etaEl.textContent = state.etaText;
+
+      if (state.status === "downloading") {
+        box.classList.add("active");
+        box.classList.remove("done");
+        statusEl.textContent = "جاري التنزيل على Chrome...";
+        actionSlot.innerHTML = `
+          <button type="button" class="btn btn-downloading" disabled>
+            <span>${pctRounded}%</span>
+            <span>ينزل على كروم</span>
+          </button>
+        `;
+      } else if (state.status === "completed") {
+        box.classList.remove("active");
+        box.classList.add("done");
+        statusEl.textContent = "اكتمل التنزيل — جاهز للتثبيت";
+        etaEl.textContent = "مكتمل";
+        actionSlot.innerHTML = `
+          <button type="button" class="btn btn-install" onclick="installDownloadedApp('${escapeHTML(id)}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M5 21h14"></path>
+            </svg>
+            تثبيت
+          </button>
+        `;
+      }
+    }
+
+    async function startAppDownload(id) {
+      const item = projectsList.find(p => p.id === id);
+      if (!item) return;
+
+      const current = downloadStates.get(id);
+      if (current && current.status === "downloading") return;
+
+      const fileName = item.fileName || `${item.title}.apk`;
+      const state = {
+        status: "downloading",
+        pct: 0,
+        speedText: "جاري القياس...",
+        etaText: "جاري الحساب...",
+        timer: null,
+        savedBlobUrl: ""
+      };
+      downloadStates.set(id, state);
+      updateCardDownloadUI(id);
+
+      // Case 1: Attached local file Blob -> triggers real browser download immediately & streams real chunks for true transfer telemetry
+      if (item.fileBlob instanceof Blob) {
+        triggerChromeDownload(item.fileBlob, fileName);
+
+        const totalBytes = item.fileBlob.size || 1;
+        const stream = item.fileBlob.stream();
+        const reader = stream.getReader();
+
+        let loadedBytes = 0;
+        let lastSampleBytes = 0;
+        let lastSampleTime = performance.now();
+        let smoothedSpeed = 0;
+
+        const telemetryInterval = setInterval(() => {
+          const st = downloadStates.get(id);
+          if (!st || st.status !== "downloading") {
+            clearInterval(telemetryInterval);
+            return;
+          }
+          const now = performance.now();
+          const dtSec = Math.max(0.05, (now - lastSampleTime) / 1000);
+          const instantSpeed = (loadedBytes - lastSampleBytes) / dtSec;
+          smoothedSpeed = smoothedSpeed === 0 ? instantSpeed : (smoothedSpeed * 0.65 + instantSpeed * 0.35);
+          lastSampleBytes = loadedBytes;
+          lastSampleTime = now;
+
+          st.pct = Math.min(99, (loadedBytes / totalBytes) * 100);
+          st.speedText = formatRealSpeed(smoothedSpeed);
+          st.etaText = formatRealEta(totalBytes - loadedBytes, smoothedSpeed);
+          updateCardDownloadUI(id);
+        }, 120);
+
+        state.timer = telemetryInterval;
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            loadedBytes += value ? value.byteLength : 0;
+          }
+        } catch (e) {
+          loadedBytes = totalBytes;
+        }
+
+        clearInterval(telemetryInterval);
+        state.timer = null;
+        state.pct = 100;
+        state.status = "completed";
+        state.etaText = "مكتمل";
+        updateCardDownloadUI(id);
+
+        pushNotification(
+          "اكتمل تنزيل البرنامج",
+          `تم تنزيل "${item.title}" على كروم، اضغط على زر التثبيت الآن.`,
+          true,
+          true,
+          item.id
+        );
+        return;
+      }
+
+      // Case 2: External URL -> real fetch stream download + real Chrome download
+      const safeUrl = sanitizeUrl(item.url);
+      if (safeUrl && safeUrl !== "#") {
+        let downloadedChunks = [];
+        let loadedBytes = 0;
+        let totalBytes = 0;
+        let lastSampleBytes = 0;
+        let lastSampleTime = performance.now();
+        let smoothedSpeed = 0;
+
+        const telemetryInterval = setInterval(() => {
+          const st = downloadStates.get(id);
+          if (!st || st.status !== "downloading") {
+            clearInterval(telemetryInterval);
+            return;
+          }
+          const now = performance.now();
+          const dtSec = Math.max(0.05, (now - lastSampleTime) / 1000);
+          const instantSpeed = (loadedBytes - lastSampleBytes) / dtSec;
+          smoothedSpeed = smoothedSpeed === 0 ? instantSpeed : (smoothedSpeed * 0.65 + instantSpeed * 0.35);
+          lastSampleBytes = loadedBytes;
+          lastSampleTime = now;
+
+          st.speedText = formatRealSpeed(smoothedSpeed);
+          if (totalBytes > 0) {
+            st.pct = Math.min(99, (loadedBytes / totalBytes) * 100);
+            st.etaText = formatRealEta(totalBytes - loadedBytes, smoothedSpeed);
+          } else {
+            st.pct = Math.min(92, st.pct + 4);
+            st.etaText = "جاري النقل...";
+          }
+          updateCardDownloadUI(id);
+        }, 120);
+
+        state.timer = telemetryInterval;
+
+        try {
+          const res = await fetch(safeUrl);
+          if (!res.ok || !res.body) throw new Error("Stream unavailable");
+
+          const contentLengthHeader = res.headers.get("content-length");
+          totalBytes = contentLengthHeader ? parseInt(contentLengthHeader, 10) : 0;
+
+          const reader = res.body.getReader();
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (value) {
+              downloadedChunks.push(value);
+              loadedBytes += value.byteLength;
+            }
+          }
+
+          clearInterval(telemetryInterval);
+          state.timer = null;
+
+          const completeBlob = new Blob(downloadedChunks, {
+            type: res.headers.get("content-type") || "application/vnd.android.package-archive"
+          });
+          triggerChromeDownload(completeBlob, fileName);
+
+          state.pct = 100;
+          state.status = "completed";
+          state.etaText = "مكتمل";
+          updateCardDownloadUI(id);
+
+          pushNotification(
+            "اكتمل تنزيل البرنامج",
+            `تم تنزيل "${item.title}" على كروم، اضغط على زر التثبيت الآن.`,
+            true,
+            true,
+            item.id
+          );
+        } catch (err) {
+          clearInterval(telemetryInterval);
+          state.timer = null;
+          triggerChromeDownload(safeUrl, fileName);
+          state.pct = 100;
+          state.status = "completed";
+          state.speedText = "نقل مباشر";
+          state.etaText = "مكتمل";
+          updateCardDownloadUI(id);
+
+          pushNotification(
+            "تم إرسال التنزيل إلى كروم",
+            `تم بدء تنزيل "${item.title}" في متصفح كروم.`,
+            true,
+            true,
+            item.id
+          );
+        }
+        return;
+      }
+
+      // No file or URL attached
+      clearInterval(state.timer);
+      downloadStates.delete(id);
+      applyFilters();
+      pushNotification("لا يوجد ملف مرفق", `أرفق ملف APK أو رابط تحميل لـ "${item.title}".`, true, false, item.id);
+    }
+
+    function installDownloadedApp(id) {
+      const item = projectsList.find(p => p.id === id);
+      if (!item) return;
+
+      const fileName = item.fileName || `${item.title}.apk`;
+      const opened = item.fileBlob
+        ? triggerChromeDownload(item.fileBlob, fileName)
+        : triggerChromeDownload(item.url, fileName);
+
+      if (opened) {
+        pushNotification(
+          "فتح المثبّت",
+          `تم فتح ملف "${fileName}" لتثبيته على جهازك.`,
+          true,
+          false,
+          item.id
+        );
+      } else {
+        openModal(item.id);
+      }
+    }
+
+    window.addEventListener("scroll", () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
+      document.getElementById("scroll-progress").style.width = progress + "%";
+    }, { passive: true });
+
+    function renderAdminQuickKPIs() {
+      const kpiEl = document.getElementById("owner-quick-kpis");
+      if (!kpiEl) return;
+      const appsCount = projectsList.filter(p => p.type === "app").length;
+      const sitesCount = projectsList.filter(p => p.type === "website").length;
+      const unreadCount = notifications.filter(n => n.unread).length;
+      kpiEl.innerHTML = `
+        <span class="owner-kpi-pill">المجموع: <strong class="mono">${projectsList.length}</strong></span>
+        <span class="owner-kpi-pill">تطبيقات: <strong class="mono">${appsCount}</strong></span>
+        <span class="owner-kpi-pill">مواقع: <strong class="mono">${sitesCount}</strong></span>
+        <span class="owner-kpi-pill">إشعارات غير مقروءة: <strong class="mono">${unreadCount}</strong></span>
+      `;
+    }
+
+    function syncAuthUI() {
+      const ownerBar = document.getElementById("owner-bar");
+      const addBtn = document.getElementById("header-add-btn");
+      const accountText = document.getElementById("account-btn-text");
+
+      if (isOwner()) {
+        ownerBar.classList.add("visible");
+        addBtn.classList.add("visible");
+        accountText.textContent = "Jad Koudmani";
+        renderAdminQuickKPIs();
+      } else if (currentUser) {
+        ownerBar.classList.remove("visible");
+        addBtn.classList.remove("visible");
+        accountText.textContent = currentUser.name || "حسابي";
+      } else {
+        ownerBar.classList.remove("visible");
+        addBtn.classList.remove("visible");
+        accountText.textContent = "تسجيل الدخول";
+      }
+      renderStats();
+      applyFilters();
+    }
+
+    function openAccountModal() {
+      if (!currentUser) {
+        document.getElementById("login-error").style.display = "none";
+        document.getElementById("login-modal-backdrop").classList.add("open");
+        return;
+      }
+
+      const meta = getUserProfileMeta(currentUser.email);
+      const initialLetter = escapeHTML((currentUser.name || "U").charAt(0).toUpperCase());
+      const unreadNotifs = notifications.filter(n => n.unread).length;
+      const totalApps = projectsList.filter(i => i.type === "app").length;
+      const totalSites = projectsList.filter(i => i.type === "website").length;
+
+      const avatarContent = meta.avatar
+        ? `<img src="${meta.avatar}" alt="${escapeHTML(currentUser.name)}" />`
+        : `<span>${initialLetter}</span>`;
+
+      const ownerStatsHtml = isOwner()
+        ? `<div class="profile-mini-stats">
+             <div class="profile-stat-box">
+               <strong class="mono">${projectsList.length}</strong>
+               <span>المشاريع المنشورة</span>
+             </div>
+             <div class="profile-stat-box">
+               <strong class="mono">${totalApps} / ${totalSites}</strong>
+               <span>تطبيقات / مواقع</span>
+             </div>
+           </div>
+           <div style="display:flex; gap:8px; margin-bottom:14px;">
+             <button type="button" class="btn btn-primary" onclick="closeAccountModal(); openManageModal();">إدارة المشاريع</button>
+             <button type="button" class="btn btn-offline" onclick="closeAccountModal(); openAddModal();">+ إضافة</button>
+           </div>`
+        : `<div class="profile-mini-stats">
+             <div class="profile-stat-box">
+               <strong class="mono">${unreadNotifs}</strong>
+               <span>إشعارات جديدة</span>
+             </div>
+             <div class="profile-stat-box">
+               <strong class="mono">نشط</strong>
+               <span>حالة الحساب</span>
+             </div>
+           </div>`;
+
+      const roleBadgeText = isOwner() ? "حساب الأدمن" : "حساب عضو";
+
+      document.getElementById("profile-dynamic-content").innerHTML = `
+        <div class="profile-hero-card">
+          <div class="profile-avatar-wrap">${avatarContent}</div>
+          <div class="profile-meta-text">
+            <h4>${escapeHTML(currentUser.name)}</h4>
+            <p class="mono">${escapeHTML(currentUser.email)}</p>
+            <span class="profile-role-badge">● ${roleBadgeText}</span>
+          </div>
+        </div>
+
+        ${ownerStatsHtml}
+
+        <div class="form-group">
+          <label>تغيير صورة البروفايل من الجهاز</label>
+          <label class="file-drop" for="profile-avatar-input">
+            <span>اختيار صورة شخصية</span>
+          </label>
+          <input type="file" id="profile-avatar-input" accept="image/*" style="display:none;" onchange="handleProfileAvatarPick(this)" />
+        </div>
+
+        <div class="form-group">
+          <label>نبذة تعريفية</label>
+          <textarea id="profile-bio-input" class="form-control" rows="2" placeholder="اكتب نبذة قصيرة عنك...">${escapeHTML(meta.bio || "")}</textarea>
+        </div>
+
+        <button type="button" class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="saveProfileChanges()">حفظ البروفايل</button>
+      `;
+
+      document.getElementById("account-modal-backdrop").classList.add("open");
+    }
+
+    function handleProfileAvatarPick(input) {
+      const file = input.files && input.files[0];
+      if (!file || !currentUser) return;
+      const objUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const maxSize = 320;
+        let w = img.width;
+        let h = img.height;
+        if (w > h && w > maxSize) {
+          h = Math.round((h * maxSize) / w);
+          w = maxSize;
+        } else if (h > maxSize) {
+          w = Math.round((w * maxSize) / h);
+          h = maxSize;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL("image/jpeg", 0.85);
+        URL.revokeObjectURL(objUrl);
+        saveUserProfileMeta(currentUser.email, { avatar: compressed });
+        openAccountModal();
+      };
+      img.src = objUrl;
+    }
+
+    function saveProfileChanges() {
+      if (!currentUser) return;
+      const bioVal = document.getElementById("profile-bio-input").value.trim();
+      saveUserProfileMeta(currentUser.email, { bio: bioVal });
+      pushNotification("تم تحديث البروفايل", "تم حفظ بيانات ملفك الشخصي بنجاح.");
+    }
+
+    function closeAccountModal() {
+      document.getElementById("account-modal-backdrop").classList.remove("open");
+    }
+
+    function closeLoginModal() {
+      document.getElementById("login-modal-backdrop").classList.remove("open");
+    }
+
+    function submitLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim().toLowerCase();
+      const pass = document.getElementById("login-pass").value;
+
+      if (!email || pass.length < 4) {
+        const err = document.getElementById("login-error");
+        const card = document.getElementById("login-modal-card");
+        err.style.display = "block";
+        card.classList.remove("shake");
+        void card.offsetWidth;
+        card.classList.add("shake");
+        return;
+      }
+
+      if (email === OWNER_CREDENTIALS.email.toLowerCase() && pass === OWNER_CREDENTIALS.pass) {
+        currentUser = {
+          email,
+          name: "Jad Koudmani",
+          role: "owner"
+        };
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(currentUser));
+        document.getElementById("login-email").value = "";
+        document.getElementById("login-pass").value = "";
+        closeLoginModal();
+        syncAuthUI();
+        pushNotification("أهلاً بك Jad Koudmani", "تم تفعيل وضع الأدمن المطوّر.");
+      } else {
+        const namePart = email.split("@")[0];
+        currentUser = {
+          email,
+          name: namePart,
+          role: "user"
+        };
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(currentUser));
+        document.getElementById("login-email").value = "";
+        document.getElementById("login-pass").value = "";
+        closeLoginModal();
+        syncAuthUI();
+        pushNotification("تم تسجيل الدخول", `مرحباً بك ${namePart} في منصة JadDev.`);
+      }
+    }
+
+    function logoutUser() {
+      currentUser = null;
+      localStorage.removeItem(USER_SESSION_KEY);
+      closeAccountModal();
+      closeManageModal();
+      syncAuthUI();
+      pushNotification("تم تسجيل الخروج", "تم تسجيل الخروج من حسابك.");
+    }
+
+    // Features Chips
+    function renderDraftFeatures() {
+      const box = document.getElementById("added-features-box");
+      if (!draftFeatures.length) {
+        box.innerHTML = "";
+        return;
+      }
+      box.innerHTML = draftFeatures.map((feat, idx) => `
+        <span class="feature-chip-item">
+          <span>${escapeHTML(feat)}</span>
+          <button type="button" class="remove-chip-btn" onclick="removeFeatureChip(${idx})" aria-label="حذف">×</button>
+        </span>
+      `).join("");
+    }
+
+    function addFeatureChip() {
+      const input = document.getElementById("feature-single-input");
+      const val = input.value.trim();
+      if (!val) return;
+      if (!draftFeatures.includes(val)) {
+        draftFeatures.push(val);
+        renderDraftFeatures();
+      }
+      input.value = "";
+      input.focus();
+    }
+
+    function quickAddFeature(text) {
+      if (!draftFeatures.includes(text)) {
+        draftFeatures.push(text);
+        renderDraftFeatures();
+      }
+    }
+
+    function removeFeatureChip(index) {
+      draftFeatures.splice(index, 1);
+      renderDraftFeatures();
+    }
+
+    // Square Cover & Instagram Detail Images Pickers
+    function renderCoverPreview() {
+      const box = document.getElementById("single-cover-preview");
+      const label = document.getElementById("cover-label-text");
+      if (!pickedCoverImage) {
+        box.innerHTML = "";
+        label.textContent = "اختر الصورة الرئيسية من المعرض";
+        return;
+      }
+      label.textContent = "تم اختيار الصورة الرئيسية (مربعة 1:1)";
+      box.innerHTML = `
+        <div class="single-cover-preview">
+          <img src="${pickedCoverImage}" alt="الصورة الرئيسية" />
+          <button type="button" class="preview-del-btn" onclick="clearCoverImage()">×</button>
+        </div>
+      `;
+    }
+
+    function clearCoverImage() {
+      pickedCoverImage = "";
+      document.getElementById("proj-cover-input").value = "";
+      renderCoverPreview();
+    }
+
+    async function handleCoverImagePick(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      document.getElementById("cover-label-text").textContent = "جاري تجهيز الصورة المربعة...";
+      pickedCoverImage = await compressSquareCover(file, 900, 0.9);
+      input.value = "";
+      renderCoverPreview();
+    }
+
+    function compressSquareCover(file, size = 900, quality = 0.9) {
+      return new Promise((resolve) => {
+        const objUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const minSide = Math.min(img.width, img.height);
+          const sx = Math.round((img.width - minSide) / 2);
+          const sy = Math.round((img.height - minSide) / 2);
+          const outSize = Math.min(size, minSide);
+
+          const canvas = document.createElement("canvas");
+          canvas.width = outSize;
+          canvas.height = outSize;
+          const ctx = canvas.getContext("2d");
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, outSize, outSize);
+          const dataUrl = canvas.toDataURL("image/jpeg", quality);
+          URL.revokeObjectURL(objUrl);
+          resolve(dataUrl);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objUrl);
+          resolve("");
+        };
+        img.src = objUrl;
+      });
+    }
+
+    function renderDetailImagesPreview() {
+      const box = document.getElementById("detail-imgs-preview");
+      const label = document.getElementById("detail-imgs-label-text");
+      if (!pickedDetailImages.length) {
+        box.innerHTML = "";
+        label.textContent = "أضف صورة إضافية أو عدة صور للتقليب";
+        return;
+      }
+      label.textContent = `تم إرفاق ${pickedDetailImages.length} صور إضافية (سلايدر مثل إنستغرام)`;
+      box.innerHTML = pickedDetailImages.map((src, idx) => `
+        <div class="multi-thumb-card">
+          <img src="${src}" alt="إضافية ${idx + 1}" />
+          <button type="button" class="multi-thumb-del" onclick="removeDetailImageAt(${idx})">×</button>
+        </div>
+      `).join("");
+    }
+
+    function removeDetailImageAt(idx) {
+      pickedDetailImages.splice(idx, 1);
+      renderDetailImagesPreview();
+    }
+
+    function clearDetailImages() {
+      pickedDetailImages = [];
+      document.getElementById("proj-detail-images-input").value = "";
+      renderDetailImagesPreview();
+    }
+
+    async function handleDetailImagesPick(input) {
+      const files = Array.from(input.files || []);
+      if (!files.length) return;
+      document.getElementById("detail-imgs-label-text").textContent = "جاري تجهيز الصور الإضافية...";
+
+      for (const file of files) {
+        const compressed = await compressDetailImage(file, 1600, 0.92);
+        if (compressed) {
+          pickedDetailImages.push(compressed);
+        }
+      }
+      input.value = "";
+      renderDetailImagesPreview();
+    }
+
+    function compressDetailImage(file, maxDim = 1600, quality = 0.92) {
+      return new Promise((resolve) => {
+        const objUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/jpeg", quality);
+          URL.revokeObjectURL(objUrl);
+          resolve(dataUrl);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objUrl);
+          resolve("");
+        };
+        img.src = objUrl;
+      });
+    }
+
+    // Instagram Carousel Navigation inside Modal
+    function initCarouselListeners(totalSlides) {
+      const track = document.getElementById("insta-carousel-track");
+      if (!track) return;
+
+      track.addEventListener("scroll", () => {
+        const slideWidth = track.clientWidth || 1;
+        const activeIdx = Math.min(
+          totalSlides - 1,
+          Math.max(0, Math.round(Math.abs(track.scrollLeft) / slideWidth))
+        );
+        syncCarouselIndicators(activeIdx, totalSlides);
+      }, { passive: true });
+    }
+
+    function syncCarouselIndicators(activeIdx, totalSlides) {
+      const counter = document.getElementById("insta-counter-pill");
+      if (counter) counter.textContent = `${activeIdx + 1} / ${totalSlides}`;
+
+      document.querySelectorAll("#insta-dots .insta-dot").forEach((dot, idx) => {
+        dot.classList.toggle("active", idx === activeIdx);
+      });
+    }
+
+    function goToCarouselSlide(idx, totalSlides) {
+      const track = document.getElementById("insta-carousel-track");
+      if (!track) return;
+      const clamped = Math.min(totalSlides - 1, Math.max(0, idx));
+      const slideWidth = track.clientWidth;
+      const dirSign = getComputedStyle(track).direction === "rtl" ? -1 : 1;
+      track.scrollTo({
+        left: dirSign * clamped * slideWidth,
+        behavior: "smooth"
+      });
+      syncCarouselIndicators(clamped, totalSlides);
+    }
+
+    function stepCarouselSlide(delta, totalSlides) {
+      const counter = document.getElementById("insta-counter-pill");
+      let currentIdx = 0;
+      if (counter) {
+        const parts = counter.textContent.split("/");
+        currentIdx = Math.max(0, (parseInt(parts[0], 10) || 1) - 1);
+      }
+      const nextIdx = (currentIdx + delta + totalSlides) % totalSlides;
+      goToCarouselSlide(nextIdx, totalSlides);
+    }
+
+    // Lightbox for full-screen detail image viewing
+    function openLightbox(src) {
+      if (!src) return;
+      document.getElementById("lightbox-img").src = src;
+      document.getElementById("lightbox-backdrop").classList.add("open");
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox-backdrop").classList.remove("open");
+    }
+
+    // Notifications System
+    function saveNotifs() {
+      try {
+        localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(notifications));
+      } catch (e) {}
+      updateNotifBadge();
+      renderAdminQuickKPIs();
+    }
+
+    function pushNotification(title, body, showBanner = true, sendSystemToo = true, projectId = null) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+      const brandArt = getJadDevArtwork();
+
+      notifications.unshift({
+        id: "n-" + Date.now() + "-" + Math.random().toString(36).slice(2, 5),
+        source: BRAND_NAME,
+        title,
+        body,
+        time: timeStr,
+        unread: true,
+        projectId
+      });
+      if (notifications.length > 50) notifications.pop();
+      saveNotifs();
+
+      if (showBanner) {
+        activeBannerProjectId = projectId;
+        document.getElementById("live-banner-img").src = brandArt;
+        document.getElementById("live-banner-title").textContent = title;
+        document.getElementById("live-banner-body").textContent = body;
+        const banner = document.getElementById("live-banner");
+        banner.classList.add("show");
+        clearTimeout(bannerTimeout);
+        bannerTimeout = setTimeout(() => banner.classList.remove("show"), 3800);
+      }
+
+      if (sendSystemToo) {
+        triggerSystemNotification(title, body);
+      }
+    }
+
+    function handleBannerClick() {
+      document.getElementById("live-banner").classList.remove("show");
+      if (activeBannerProjectId && projectsList.some(p => p.id === activeBannerProjectId)) {
+        openModal(activeBannerProjectId);
+      } else {
+        openNotifModal();
+      }
+    }
+
+    function updateNotifBadge() {
+      const unreadCount = notifications.filter(n => n.unread).length;
+      const badge = document.getElementById("notif-badge");
+      const bellBtn = document.getElementById("notif-bell-btn");
+      badge.textContent = unreadCount;
+      if (unreadCount > 0) {
+        badge.classList.remove("hidden");
+        bellBtn.classList.add("has-unread");
+      } else {
+        badge.classList.add("hidden");
+        bellBtn.classList.remove("has-unread");
+      }
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById("notif-list");
+      const brandArt = getJadDevArtwork();
+      if (!notifications.length) {
+        list.innerHTML = `<div class="empty-state">لا توجد إشعارات حالياً.</div>`;
+        return;
+      }
+      list.innerHTML = notifications.map(n => `
+        <div class="notif-item ${n.unread ? "unread" : ""}" onclick="handleNotifItemClick('${escapeHTML(n.id)}', ${n.projectId ? `'${escapeHTML(n.projectId)}'` : "null"})">
+          <img src="${brandArt}" alt="JadDev" class="notif-brand-img" />
+          <div class="notif-content">
+            <span class="notif-source-tag mono">${escapeHTML(n.source || BRAND_NAME)}</span>
+            <h4>${escapeHTML(n.title)}</h4>
+            <p>${escapeHTML(n.body)}</p>
+            <span class="notif-time mono">${escapeHTML(n.time)}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function handleNotifItemClick(notifId, projectId) {
+      readSingleNotif(notifId);
+      if (projectId && projectsList.some(p => p.id === projectId)) {
+        closeNotifModal();
+        openModal(projectId);
+      }
+    }
+
+    function readSingleNotif(id) {
+      const target = notifications.find(n => n.id === id);
+      if (target && target.unread) {
+        target.unread = false;
+        saveNotifs();
+        renderNotifications();
+      }
+    }
+
+    function markAllNotifsRead() {
+      notifications.forEach(n => n.unread = false);
+      saveNotifs();
+      renderNotifications();
+    }
+
+    function clearNotifs() {
+      notifications = [];
+      saveNotifs();
+      renderNotifications();
+      pushNotification("تم المسح", "تم مسح سجل الإشعارات.", true, false);
+    }
+
+    function openNotifModal() {
+      document.getElementById("live-banner").classList.remove("show");
+      renderNotifications();
+      document.getElementById("notif-modal-backdrop").classList.add("open");
+    }
+
+    function closeNotifModal() {
+      document.getElementById("notif-modal-backdrop").classList.remove("open");
+    }
+
+    function openBroadcastModal() {
+      if (!isOwner()) return;
+      document.getElementById("broadcast-modal-backdrop").classList.add("open");
+    }
+
+    function closeBroadcastModal() {
+      document.getElementById("broadcast-modal-backdrop").classList.remove("open");
+    }
+
+    function sendBroadcast(e) {
+      e.preventDefault();
+      if (!isOwner()) return;
+      const title = document.getElementById("bc-title").value.trim();
+      const body = document.getElementById("bc-body").value.trim();
+      document.getElementById("bc-title").value = "";
+      document.getElementById("bc-body").value = "";
+      closeBroadcastModal();
+      pushNotification(title, body, true, true);
+    }
+
+    // Admin Manager Modal
+    function openManageModal() {
+      if (!isOwner()) return;
+      renderAdminManageList();
+      document.getElementById("manage-modal-backdrop").classList.add("open");
+    }
+
+    function closeManageModal() {
+      document.getElementById("manage-modal-backdrop").classList.remove("open");
+    }
+
+    function renderAdminManageList() {
+      const box = document.getElementById("admin-manage-list");
+      const q = (document.getElementById("admin-search-input")?.value || "").trim().toLowerCase();
+      const sortMode = document.getElementById("admin-sort-select")?.value || "newest";
+
+      let items = projectsList.filter(item => {
+        if (!q) return true;
+        return [item.title, item.version, item.shortDesc, ...(item.features || [])]
+          .join(" ")
+          .toLowerCase()
+          .includes(q);
+      });
+
+      if (sortMode === "oldest") {
+        items = [...items].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      } else if (sortMode === "title") {
+        items = [...items].sort((a, b) => a.title.localeCompare(b.title, "ar"));
+      } else {
+        items = [...items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      }
+
+      if (!items.length) {
+        box.innerHTML = `<div class="empty-state">لا توجد مشاريع مطابقة.</div>`;
+        return;
+      }
+
+      box.innerHTML = items.map(item => {
+        const detailCount = (item.detailImages || []).length;
+        return `
+          <div class="admin-manage-row">
+            <div class="admin-manage-info">
+              <strong>${escapeHTML(item.title)}</strong>
+              <span class="mono">${item.type === "app" ? "تطبيق" : "موقع"} • ${escapeHTML(item.version)} • ${detailCount} صور إضافية</span>
+            </div>
+            <div class="admin-row-btns">
+              <button type="button" class="mini-btn edit" onclick="openEditProjectModal('${escapeHTML(item.id)}')">تعديل</button>
+              <button type="button" class="mini-btn del" onclick="askDeleteConfirm('${escapeHTML(item.id)}')">حذف</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function exportProjectsJSON() {
+      if (!isOwner()) return;
+      const exportData = projectsList.map(({ fileBlob, url, ...rest }) => ({
+        ...rest,
+        url: url && url.startsWith("blob:") ? "#" : (url || "#")
+      }));
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "jaddev-projects-backup.json";
+      link.click();
+      pushNotification("تصدير ناجح", "تم تحميل ملف النسخة الاحتياطية JSON.", true, true);
+    }
+
+    async function importProjectsJSON(input) {
+      if (!isOwner()) return;
+      const file = input.files && input.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const arr = JSON.parse(text);
+        if (Array.isArray(arr)) {
+          for (const item of arr) {
+            if (item && item.title) {
+              const normalized = normalizeProjectItem({
+                ...item,
+                id: item.id || ("proj-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6)),
+                createdAt: item.createdAt || Date.now(),
+                url: sanitizeUrl(item.url)
+              });
+              await upsertProjectInDB(normalized);
+            }
+          }
+          renderStats();
+          applyFilters();
+          renderAdminManageList();
+          renderAdminQuickKPIs();
+          pushNotification("استيراد ناجح", `تمت استعادة ${arr.length} عنصر.`, true, true);
+        }
+      } catch (err) {
+        pushNotification("خطأ في الاستيراد", "تأكد من صحة ملف JSON.", true, false);
+      }
+      input.value = "";
+    }
+
+    // Smart Search & Filtering
+    function handleSearchInput(input) {
+      const clearBtn = document.getElementById("search-clear-btn");
+      clearBtn.classList.toggle("visible", input.value.length > 0);
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        searchQuery = input.value.trim().toLowerCase();
+        applyFilters();
+      }, 90);
+    }
+
+    function clearSearchInput() {
+      const input = document.getElementById("search-input");
+      input.value = "";
+      searchQuery = "";
+      document.getElementById("search-clear-btn").classList.remove("visible");
+      applyFilters();
+    }
+
+    function renderStats() {
+      const totalApps = projectsList.filter(i => i.type === "app").length;
+      const totalOffline = projectsList.filter(i => i.offline).length;
+      const totalSites = projectsList.filter(i => i.type === "website").length;
+
+      document.getElementById("stats-row").innerHTML = `
+        <div class="stat-chip"><strong>${totalApps}</strong><span>التطبيقات</span></div>
+        <div class="stat-chip"><strong>${totalOffline}</strong><span>Offline</span></div>
+        <div class="stat-chip"><strong>${totalSites}</strong><span>المواقع</span></div>
+      `;
+    }
+
+    function setFilter(filter, btn) {
+      activeFilter = filter;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      applyFilters();
+    }
+
+    function matchesSmartQuery(item, q) {
+      if (!q) return true;
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const blob = [
+        item.title,
+        item.shortDesc,
+        item.version,
+        item.type === "app" ? "تطبيق برنامج apk" : "موقع منصة",
+        item.offline ? "offline أوفلاين بدون نت" : "online أونلاين",
+        ...(item.features || [])
+      ].join(" ").toLowerCase();
+
+      return tokens.every(tok => blob.includes(tok));
+    }
+
+    function applyFilters() {
+      const matches = projectsList.filter(item => {
+        if (activeFilter === "offline" && !item.offline) return false;
+        if (activeFilter === "app" && item.type !== "app") return false;
+        if (activeFilter === "website" && item.type !== "website") return false;
+        return matchesSmartQuery(item, searchQuery);
+      });
+
+      const apps = matches.filter(i => i.type === "app");
+      const sites = matches.filter(i => i.type === "website");
+
+      renderGrid("apps-grid", apps, "app");
+      renderGrid("sites-grid", sites, "website");
+
+      document.getElementById("apps-count").textContent = apps.length;
+      document.getElementById("sites-count").textContent = sites.length;
+
+      document.getElementById("apps-section").style.display =
+        activeFilter === "website" ? "none" : "block";
+      document.getElementById("sites-section").style.display =
+        activeFilter === "app" ? "none" : "block";
+    }
+
+    function renderGrid(containerId, items, kind) {
+      const grid = document.getElementById(containerId);
+      if (!items.length) {
+        const msg = kind === "app"
+          ? "لا توجد تطبيقات مطابقة حالياً."
+          : "لا توجد مواقع مطابقة حالياً.";
+        grid.innerHTML = `<div class="empty-state">${msg}</div>`;
+        return;
+      }
+
+      const ownerActive = isOwner();
+
+      grid.innerHTML = items.map((item, idx) => {
+        const delay = Math.min(idx * 0.04, 0.2);
+        const safeId = escapeHTML(item.id);
+        const safeTitle = escapeHTML(item.title);
+        const safeTitleAttr = item.title.replace(/'/g, "\\'");
+        const safeUrl = sanitizeUrl(item.url);
+        const coverSrc = item.coverImage || "";
+        const dlState = downloadStates.get(item.id);
+
+        const statusBadge = item.offline
+          ? `<span class="badge badge-offline"><span class="pulse-dot"></span> Offline</span>`
+          : `<span class="badge badge-online">● Online</span>`;
+
+        const coverHtml = coverSrc
+          ? `<div class="card-cover-wrap">
+               <img src="${coverSrc}" alt="${safeTitle}" class="card-cover" loading="lazy" />
+             </div>`
+          : "";
+
+        let dlProgressHtml = "";
+        let primaryActionHtml = "";
+
+        if (kind === "app") {
+          const isActive = dlState && dlState.status === "downloading";
+          const isDone = dlState && dlState.status === "completed";
+          const boxStateClass = isActive ? "active" : (isDone ? "done" : "");
+          const pctVal = dlState ? Math.round(dlState.pct) : 0;
+          const speedVal = dlState ? dlState.speedText : "0 KB/s";
+          const etaVal = dlState ? dlState.etaText : "—";
+          const statusText = isDone ? "اكتمل التنزيل — جاهز للتثبيت" : "جاري التنزيل على Chrome...";
+
+          dlProgressHtml = `
+            <div class="dl-progress-box ${boxStateClass}" id="dl-box-${safeId}">
+              <div class="dl-header-line">
+                <span class="dl-status-label">${statusText}</span>
+                <span class="dl-pct-label mono">${pctVal}%</span>
+              </div>
+              <div class="dl-track">
+                <div class="dl-fill" style="width:${pctVal}%;"></div>
+              </div>
+              <div class="dl-telemetry-row mono">
+                <span>السرعة: <strong class="dl-speed-val">${escapeHTML(speedVal)}</strong></span>
+                <span>الوقت المتبقي: <strong class="dl-eta-val">${escapeHTML(etaVal)}</strong></span>
+              </div>
+            </div>
+          `;
+
+          if (isDone) {
+            primaryActionHtml = `
+              <span id="dl-action-slot-${safeId}" style="flex:1; display:flex;">
+                <button type="button" class="btn btn-install" onclick="installDownloadedApp('${safeId}')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M12 3v12"></path>
+                    <path d="m7 10 5 5 5-5"></path>
+                    <path d="M5 21h14"></path>
+                  </svg>
+                  تثبيت
+                </button>
+              </span>
+            `;
+          } else if (isActive) {
+            primaryActionHtml = `
+              <span id="dl-action-slot-${safeId}" style="flex:1; display:flex;">
+                <button type="button" class="btn btn-downloading" disabled>
+                  <span>${pctVal}%</span>
+                  <span>ينزل على كروم</span>
+                </button>
+              </span>
+            `;
+          } else {
+            primaryActionHtml = `
+              <span id="dl-action-slot-${safeId}" style="flex:1; display:flex;">
+                <button type="button" class="btn btn-offline" onclick="startAppDownload('${safeId}')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  تحميل
+                </button>
+              </span>
+            `;
+          }
+        } else {
+          primaryActionHtml = `
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="pushNotification('فتح موقع', 'تم الانتقال إلى ${safeTitleAttr}', true, false, '${safeId}')" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              زيارة
+            </a>
+          `;
+        }
+
+        const icon = coverSrc
+          ? `<img src="${coverSrc}" alt="" />`
+          : (kind === "app"
+              ? `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                   <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                   <polyline points="2 17 12 22 22 17"></polyline>
+                   <polyline points="2 12 12 17 22 12"></polyline>
+                 </svg>`
+              : `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                   <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                   <line x1="8" y1="21" x2="16" y2="21"></line>
+                   <line x1="12" y1="17" x2="12" y2="21"></line>
+                 </svg>`);
+
+        const ownerCardActions = ownerActive
+          ? `<div class="card-actions" style="margin-top:8px;">
+               <button type="button" class="btn btn-edit" onclick="openEditProjectModal('${safeId}')">تعديل</button>
+               <button type="button" class="btn btn-del" onclick="askDeleteConfirm('${safeId}')">حذف</button>
+             </div>`
+          : "";
+
+        return `
+          <article class="card" style="animation-delay: ${delay}s;">
+            <div>
+              ${coverHtml}
+              <div class="card-top">
+                <div class="icon-box">${icon}</div>
+                <div class="badges">
+                  ${statusBadge}
+                  <span class="badge badge-meta mono">${escapeHTML(item.version)}</span>
+                  ${item.meta ? `<span class="badge badge-meta mono">${escapeHTML(item.meta)}</span>` : ""}
+                </div>
+              </div>
+              <h3>${safeTitle}</h3>
+              <p>${escapeHTML(item.shortDesc)}</p>
+              <div class="tags">
+                ${(item.features || []).slice(0, 2).map(f => `<span class="tag">${escapeHTML(f)}</span>`).join("")}
+              </div>
+              ${dlProgressHtml}
+            </div>
+            <div>
+              <div class="card-actions">
+                ${primaryActionHtml}
+                <button type="button" class="btn btn-ghost" onclick="openModal('${safeId}')">الميزات</button>
+                <button type="button" class="btn btn-copy" title="نسخ الرابط" onclick="copyLink('${safeUrl.replace(/'/g, "\\'")}', '${safeTitleAttr}', '${safeId}')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+              ${ownerCardActions}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    // Opens full details + Instagram carousel for extra images
+    function openModal(id) {
+      const item = projectsList.find(p => p.id === id);
+      if (!item) return;
+
+      const safeTitle = escapeHTML(item.title);
+      const safeUrl = sanitizeUrl(item.url);
+      const extraImgs = Array.isArray(item.detailImages) ? item.detailImages : [];
+
+      document.getElementById("modal-title").textContent = item.title;
+      document.getElementById("modal-desc").textContent = item.shortDesc;
+
+      document.getElementById("modal-badges").innerHTML = `
+        ${item.offline
+          ? `<span class="badge badge-offline"><span class="pulse-dot"></span> يعمل أوفلاين</span>`
+          : `<span class="badge badge-online">● موقع إلكتروني</span>`}
+        <span class="badge badge-meta mono">${escapeHTML(item.version)}</span>
+        ${item.meta ? `<span class="badge badge-meta mono">${escapeHTML(item.meta)}</span>` : ""}
+      `;
+
+      document.getElementById("modal-features").innerHTML = (item.features || []).map(f => `
+        <li>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>${escapeHTML(f)}</span>
+        </li>
+      `).join("");
+
+      const gallerySection = document.getElementById("modal-gallery-section");
+      if (extraImgs.length > 0) {
+        const total = extraImgs.length;
+        const navControlsHtml = total > 1
+          ? `<div class="insta-nav-row">
+               <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(-1, ${total})" aria-label="السابق">‹</button>
+               <div class="insta-dots" id="insta-dots">
+                 ${extraImgs.map((_, idx) => `
+                   <button type="button" class="insta-dot ${idx === 0 ? "active" : ""}" onclick="goToCarouselSlide(${idx}, ${total})" aria-label="صورة ${idx + 1}"></button>
+                 `).join("")}
+               </div>
+               <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(1, ${total})" aria-label="التالي">›</button>
+             </div>`
+          : "";
+
+        gallerySection.innerHTML = `
+          <span class="modal-section-label">صور إضافية — اسحب أو قلّب بين الصور مثل إنستغرام</span>
+          <div class="insta-carousel">
+            <span class="insta-counter-pill mono" id="insta-counter-pill">1 / ${total}</span>
+            <div class="insta-track" id="insta-carousel-track">
+              ${extraImgs.map((src, idx) => `
+                <div class="insta-slide" onclick="openLightbox(this.querySelector('img').src)">
+                  <img src="${src}" alt="${safeTitle} - ${idx + 1}" loading="lazy" />
+                </div>
+              `).join("")}
+            </div>
+            ${navControlsHtml}
+          </div>
+        `;
+        initCarouselListeners(total);
+      } else {
+        gallerySection.innerHTML = "";
+      }
+
+      const dlState = downloadStates.get(item.id);
+      const isDone = dlState && dlState.status === "completed";
+      const adminButtons = isOwner()
+        ? `<button type="button" class="btn btn-edit" style="flex:0.5;" onclick="closeModal(); openEditProjectModal('${escapeHTML(item.id)}');">تعديل</button>
+           <button type="button" class="btn btn-del" style="flex:0.5;" onclick="askDeleteConfirm('${escapeHTML(item.id)}')">حذف</button>`
+        : "";
+
+      document.getElementById("modal-cta").innerHTML = (item.type === "app"
+        ? (isDone
+            ? `<button type="button" class="btn btn-install" onclick="installDownloadedApp('${escapeHTML(item.id)}')">تثبيت البرنامج</button>`
+            : `<button type="button" class="btn btn-offline" onclick="closeModal(); startAppDownload('${escapeHTML(item.id)}');">تحميل البرنامج</button>`)
+        : `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">فتح الموقع</a>`) + adminButtons;
+
+      document.getElementById("modal-backdrop").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("modal-backdrop").classList.remove("open");
+    }
+
+    // Delete Confirmation ("متأكد أو لا")
+    function askDeleteConfirm(id) {
+      if (!isOwner()) return;
+      const target = projectsList.find(p => p.id === id);
+      if (!target) return;
+      pendingDeleteId = id;
+      document.getElementById("delete-confirm-text").innerHTML =
+        `هل أنت متأكد أنك تريد حذف <strong>"${escapeHTML(target.title)}"</strong>؟`;
+      document.getElementById("confirm-delete-backdrop").classList.add("open");
+    }
+
+    function closeDeleteConfirm() {
+      pendingDeleteId = null;
+      document.getElementById("confirm-delete-backdrop").classList.remove("open");
+    }
+
+    async function confirmDeleteAction() {
+      if (!isOwner() || !pendingDeleteId) return;
+      const idToRemove = pendingDeleteId;
+      const target = projectsList.find(p => p.id === idToRemove);
+      const removedName = target ? target.title : "المشروع";
+      closeDeleteConfirm();
+      closeModal();
+      await deleteProjectFromDB(idToRemove);
+      renderStats();
+      applyFilters();
+      renderAdminManageList();
+      renderAdminQuickKPIs();
+      pushNotification("تم حذف مشروع", `تم حذف "${removedName}" من JadDev.`, true, true);
+    }
+
+    // Add & Edit Modal
+    function openAddModal() {
+      if (!isOwner()) return;
+      editingProjectId = null;
+      document.getElementById("add-modal-title").textContent = "إضافة برنامج أو موقع";
+      document.getElementById("save-proj-btn").textContent = "نشر في الموقع";
+      document.getElementById("add-form").reset();
+      clearCoverImage();
+      clearDetailImages();
+      draftFeatures = [];
+      pickedFileBlob = null;
+      pickedFileName = "";
+      pickedFileSize = "";
+      document.getElementById("file-label-text").textContent = "اضغط لاختيار ملف APK أو HTML مباشرة";
+      toggleProjectTypeFields();
+      renderDraftFeatures();
+      document.getElementById("add-modal-backdrop").classList.add("open");
+    }
+
+    function openEditProjectModal(id) {
+      if (!isOwner()) return;
+      const item = projectsList.find(p => p.id === id);
+      if (!item) return;
+
+      closeManageModal();
+      editingProjectId = item.id;
+      document.getElementById("add-modal-title").textContent = "تعديل المشروع";
+      document.getElementById("save-proj-btn").textContent = "حفظ التعديلات";
+
+      document.getElementById("proj-type").value = item.type || "app";
+      document.getElementById("proj-version").value = item.version || "v1.0";
+      document.getElementById("proj-title").value = item.title || "";
+      document.getElementById("proj-desc").value = item.shortDesc || "";
+      document.getElementById("proj-offline").checked = Boolean(item.offline);
+      document.getElementById("proj-url").value = (item.url && !item.url.startsWith("blob:") && item.url !== "#") ? item.url : "";
+
+      pickedCoverImage = item.coverImage || "";
+      renderCoverPreview();
+
+      pickedDetailImages = Array.isArray(item.detailImages) ? [...item.detailImages] : [];
+      renderDetailImagesPreview();
+
+      pickedFileBlob = item.fileBlob || null;
+      pickedFileName = item.fileName || "";
+      pickedFileSize = item.meta || "";
+      document.getElementById("file-label-text").textContent = pickedFileName
+        ? `الملف المرفق: ${pickedFileName}`
+        : "اضغط لاختيار ملف APK أو HTML مباشرة";
+
+      draftFeatures = Array.isArray(item.features) ? [...item.features] : [];
+      toggleProjectTypeFields();
+      renderDraftFeatures();
+      document.getElementById("add-modal-backdrop").classList.add("open");
+    }
+
+    function closeAddModal() {
+      editingProjectId = null;
+      document.getElementById("add-modal-backdrop").classList.remove("open");
+    }
+
+    function toggleProjectTypeFields() {
+      const type = document.getElementById("proj-type").value;
+      document.getElementById("app-only-fields").style.display = type === "app" ? "block" : "none";
+      document.getElementById("url-label").textContent =
+        type === "app" ? "رابط تحميل APK المباشر (اختياري إذا أرفقت ملفاً)" : "رابط الموقع الإلكتروني";
+    }
+
+    function handleFilePick(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      pickedFileBlob = file;
+      pickedFileName = file.name;
+      pickedFileSize = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+      document.getElementById("file-label-text").textContent = `تم إرفاق: ${file.name} (${pickedFileSize})`;
+      input.value = "";
+    }
+
+    async function saveProjectForm(e) {
+      e.preventDefault();
+      if (!isOwner()) return;
+
+      const pendingFeature = document.getElementById("feature-single-input").value.trim();
+      if (pendingFeature && !draftFeatures.includes(pendingFeature)) {
+        draftFeatures.push(pendingFeature);
+      }
+
+      const saveBtn = document.getElementById("save-proj-btn");
+      saveBtn.disabled = true;
+      saveBtn.textContent = "جاري الحفظ...";
+
+      const type = document.getElementById("proj-type").value;
+      const title = document.getElementById("proj-title").value.trim();
+      const version = document.getElementById("proj-version").value.trim();
+      const shortDesc = document.getElementById("proj-desc").value.trim();
+      const offline = type === "app" ? document.getElementById("proj-offline").checked : false;
+      const rawUrl = sanitizeUrl(document.getElementById("proj-url").value.trim());
+
+      const existingItem = editingProjectId
+        ? projectsList.find(p => p.id === editingProjectId)
+        : null;
+
+      const features = draftFeatures.length
+        ? [...draftFeatures]
+        : [offline ? "يعمل أوفلاين بالكامل" : "تجربة سريعة ومتجاوبة"];
+
+      const attachedBlob = pickedFileBlob || (existingItem ? existingItem.fileBlob : null) || null;
+      const attachedName = pickedFileName || (existingItem ? existingItem.fileName : "") || "";
+
+      const projectRecord = {
+        id: existingItem ? existingItem.id : ("proj-" + Date.now()),
+        createdAt: existingItem ? existingItem.createdAt : Date.now(),
+        type,
+        title,
+        version,
+        meta: pickedFileSize || (existingItem && existingItem.meta) || (type === "app" ? "APK" : "Live"),
+        offline,
+        shortDesc,
+        features,
+        coverImage: pickedCoverImage || "",
+        detailImages: [...pickedDetailImages],
+        url: rawUrl !== "#" ? rawUrl : ((existingItem && !existingItem.url.startsWith("blob:") && existingItem.url) || "#"),
+        fileBlob: attachedBlob,
+        fileName: attachedName
+      };
+
+      await upsertProjectInDB(projectRecord);
+
+      const wasEdit = Boolean(existingItem);
+      closeAddModal();
+      saveBtn.disabled = false;
+      saveBtn.textContent = "نشر في الموقع";
+
+      renderStats();
+      applyFilters();
+      renderAdminQuickKPIs();
+      pushNotification(
+        wasEdit ? "تم تعديل مشروع" : "إضافة مشروع جديد",
+        wasEdit ? `تم تحديث "${title}" في JadDev.` : `تم نشر "${title}" في JadDev.`,
+        true,
+        true,
+        projectRecord.id
+      );
+    }
+
+    function copyLink(url, title, projectId = null) {
+      if (!url || url.startsWith("blob:") || url === "#") {
+        pushNotification("ملف مرفوع", `ملف ${title} متاح للتحميل المباشر من البطاقة.`, true, false, projectId);
+        return;
+      }
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).catch(() => {});
+      }
+      pushNotification("تم نسخ الرابط", `تم نسخ رابط ${title} إلى الحافظة.`, true, false, projectId);
+    }
+
+    (async function boot() {
+      getJadDevArtwork();
+      registerServiceWorker();
+      await initDB();
+      await loadProjectsFromDB();
+      updateNotifBadge();
+      syncAuthUI();
+    })();
+  </script>
+</body>
+</html>
