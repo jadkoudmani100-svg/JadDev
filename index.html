@@ -12,12 +12,13 @@
     :root {
       --bg-void: #03050a;
       --bg-deep: #070c17;
-      --glass-surface: rgba(12, 19, 35, 0.7);
-      --glass-surface-strong: rgba(8, 14, 27, 0.95);
-      --glass-hover: rgba(19, 31, 56, 0.88);
-      --glass-border: rgba(255, 255, 255, 0.09);
+      --glass-surface: rgba(12, 19, 35, 0.68);
+      --glass-surface-strong: rgba(8, 14, 27, 0.94);
+      --glass-hover: rgba(19, 31, 56, 0.86);
+      --glass-border: rgba(255, 255, 255, 0.1);
       --glass-border-cyan: rgba(34, 211, 238, 0.45);
-      --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      --glass-blur: blur(22px) saturate(175%);
       --neon-blue: #3b82f6;
       --neon-cyan: #22d3ee;
       --neon-emerald: #10b981;
@@ -28,6 +29,15 @@
       --text-muted: #64748b;
       --spring: cubic-bezier(0.22, 1, 0.36, 1);
       --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body.crystal-glass {
+      --bg-void: #050a14;
+      --glass-surface: rgba(255, 255, 255, 0.08);
+      --glass-surface-strong: rgba(12, 20, 38, 0.88);
+      --glass-hover: rgba(255, 255, 255, 0.13);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.28);
     }
 
     * {
@@ -51,7 +61,7 @@
     }
 
     body {
-      font-family: 'Cairo', sans-serif;
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-void);
       color: var(--text-primary);
       min-height: 100vh;
@@ -59,12 +69,14 @@
       line-height: 1.62;
       overflow-x: hidden;
       position: relative;
+      transition: background-color 0.3s ease;
     }
 
     .mono {
       font-family: 'JetBrains Mono', monospace;
     }
 
+    /* Ambient Glassmode Stage */
     .ambient-stage {
       position: fixed;
       inset: 0;
@@ -78,34 +90,34 @@
       position: absolute;
       border-radius: 50%;
       filter: blur(88px);
-      opacity: 0.46;
+      opacity: 0.48;
       will-change: transform;
-      animation: orbDrift 16s ease-in-out infinite alternate;
+      animation: orbDrift 15s ease-in-out infinite alternate;
     }
 
     .orb-1 {
-      width: 370px;
-      height: 370px;
+      width: 380px;
+      height: 380px;
       top: -105px;
       right: -85px;
-      background: radial-gradient(circle, rgba(37, 99, 235, 0.62), transparent 70%);
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.65), transparent 70%);
     }
 
     .orb-2 {
-      width: 350px;
-      height: 350px;
+      width: 360px;
+      height: 360px;
       bottom: 4%;
       left: -95px;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.42), transparent 70%);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.45), transparent 70%);
       animation-delay: -5s;
     }
 
     .orb-3 {
-      width: 290px;
-      height: 290px;
+      width: 300px;
+      height: 300px;
       top: 38%;
       right: 18%;
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.2), transparent 70%);
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.22), transparent 70%);
       animation-delay: -10s;
     }
 
@@ -127,29 +139,17 @@
 
     @keyframes orbDrift {
       0% { transform: translate3d(0, 0, 0) scale(1); }
-      100% { transform: translate3d(-24px, 28px, 0) scale(1.12); }
+      100% { transform: translate3d(-26px, 30px, 0) scale(1.12); }
     }
 
     @keyframes cardRise {
-      0% {
-        opacity: 0;
-        transform: translate3d(0, 14px, 0) scale(0.98);
-      }
-      100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-      }
+      0% { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.98); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
     }
 
     @keyframes welcomePop {
-      0% {
-        opacity: 0;
-        transform: translate3d(0, 24px, 0) scale(0.94);
-      }
-      100% {
-        opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
-      }
+      0% { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.94); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
     }
 
     @keyframes floatSlow {
@@ -187,6 +187,14 @@
       40%, 80% { transform: translate3d(6px, 0, 0); }
     }
 
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spin {
+      animation: spin 0.9s linear infinite;
+    }
+
     .animate-enter {
       animation: cardRise 0.35s var(--spring) both;
     }
@@ -212,9 +220,9 @@
       position: sticky;
       top: 0;
       z-index: 80;
-      background: rgba(3, 5, 10, 0.82);
-      backdrop-filter: blur(22px) saturate(175%);
-      -webkit-backdrop-filter: blur(22px) saturate(175%);
+      background: rgba(3, 5, 10, 0.76);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border-bottom: 1px solid var(--glass-border);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     }
@@ -291,9 +299,9 @@
       position: relative;
       height: 38px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.055);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid var(--glass-border);
       box-shadow: var(--glass-highlight);
       color: var(--text-primary);
@@ -307,8 +315,8 @@
     }
 
     .glass-pill-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.11);
+      border-color: rgba(255, 255, 255, 0.22);
     }
 
     .glass-pill-btn:active {
@@ -397,6 +405,7 @@
       display: inline-flex;
     }
 
+    /* Welcome Popup */
     .welcome-overlay {
       position: fixed;
       inset: 0;
@@ -424,7 +433,7 @@
       position: relative;
       width: 100%;
       max-width: 465px;
-      background: linear-gradient(145deg, rgba(10, 17, 33, 0.97), rgba(6, 22, 32, 0.97));
+      background: linear-gradient(145deg, rgba(10, 17, 33, 0.96), rgba(6, 22, 32, 0.96));
       backdrop-filter: blur(28px) saturate(185%);
       -webkit-backdrop-filter: blur(28px) saturate(185%);
       border: 1px solid rgba(34, 211, 238, 0.45);
@@ -513,6 +522,7 @@
       font-weight: 800;
     }
 
+    /* Admin Bar */
     .owner-bar {
       display: none;
       max-width: 1140px;
@@ -526,9 +536,9 @@
     }
 
     .owner-bar-inner {
-      background: linear-gradient(135deg, rgba(11, 19, 36, 0.88), rgba(7, 24, 34, 0.88));
-      backdrop-filter: blur(24px) saturate(175%);
-      -webkit-backdrop-filter: blur(24px) saturate(175%);
+      background: linear-gradient(135deg, rgba(11, 19, 36, 0.85), rgba(7, 24, 34, 0.85));
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid rgba(34, 211, 238, 0.38);
       box-shadow: var(--glass-highlight), 0 20px 44px rgba(0, 0, 0, 0.52);
       border-radius: 28px;
@@ -591,6 +601,12 @@
       border-color: rgba(16, 185, 129, 0.5);
       background: rgba(16, 185, 129, 0.16);
       color: #6ee7b7;
+    }
+
+    .supabase-pill-warn {
+      border-color: rgba(251, 191, 36, 0.5);
+      background: rgba(251, 191, 36, 0.15);
+      color: #fde68a;
     }
 
     .supabase-pill-err {
@@ -698,6 +714,7 @@
       background: rgba(244, 63, 94, 0.14);
     }
 
+    /* Hero */
     .hero {
       max-width: 1140px;
       margin: 26px auto 18px;
@@ -840,8 +857,8 @@
 
     .stat-chip {
       background: var(--glass-surface);
-      backdrop-filter: blur(18px) saturate(155%);
-      -webkit-backdrop-filter: blur(18px) saturate(155%);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       box-shadow: var(--glass-highlight), 0 10px 24px rgba(0, 0, 0, 0.28);
       border-radius: 22px;
@@ -867,6 +884,7 @@
       line-height: 1.2;
     }
 
+    /* Controls */
     .controls-box {
       max-width: 1140px;
       margin: 0 auto 24px;
@@ -926,8 +944,8 @@
       padding: 0 44px 0 42px;
       border-radius: 24px;
       background: var(--glass-surface);
-      backdrop-filter: blur(20px) saturate(160%);
-      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       box-shadow: var(--glass-highlight), 0 10px 26px rgba(0, 0, 0, 0.28);
       color: var(--text-primary);
@@ -946,8 +964,8 @@
       padding: 0 14px;
       border-radius: 24px;
       background: var(--glass-surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       color: var(--text-primary);
       font-family: 'Cairo', sans-serif;
@@ -1009,7 +1027,7 @@
       text-align: center;
     }
 
-    /* Upgraded Developer Support / Donations Hub (Kaza Wallet) */
+    /* Kaza Wallet Support Hub */
     .support-banner {
       max-width: 1140px;
       margin: 0 auto 34px;
@@ -1019,9 +1037,9 @@
     .support-card {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(140deg, rgba(251, 191, 36, 0.15), rgba(11, 18, 34, 0.92) 45%, rgba(16, 185, 129, 0.1));
-      backdrop-filter: blur(24px) saturate(175%);
-      -webkit-backdrop-filter: blur(24px) saturate(175%);
+      background: linear-gradient(140deg, rgba(251, 191, 36, 0.15), rgba(11, 18, 34, 0.88) 45%, rgba(16, 185, 129, 0.1));
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid rgba(251, 191, 36, 0.45);
       box-shadow: var(--glass-highlight), 0 22px 48px rgba(0, 0, 0, 0.52), 0 0 38px rgba(251, 191, 36, 0.13);
       border-radius: 30px;
@@ -1256,6 +1274,7 @@
       color: #ffffff;
     }
 
+    /* Sections & Cards */
     .section {
       max-width: 1140px;
       margin: 0 auto 38px;
@@ -1305,8 +1324,8 @@
     .card {
       position: relative;
       background: var(--glass-surface);
-      backdrop-filter: blur(22px) saturate(165%);
-      -webkit-backdrop-filter: blur(22px) saturate(165%);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       box-shadow: var(--glass-highlight), 0 18px 38px -14px rgba(0, 0, 0, 0.65);
       border-radius: 30px;
@@ -1325,7 +1344,7 @@
       inset: 0;
       border-radius: inherit;
       pointer-events: none;
-      background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), rgba(56, 189, 248, 0.14), transparent 70%);
+      background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), rgba(56, 189, 248, 0.15), transparent 70%);
       opacity: 0;
       transition: opacity 0.22s ease;
     }
@@ -1337,7 +1356,7 @@
     .card:hover {
       transform: translateY(-3px);
       background: var(--glass-hover);
-      border-color: rgba(56, 189, 248, 0.32);
+      border-color: rgba(56, 189, 248, 0.34);
       box-shadow: var(--glass-highlight), 0 22px 46px -12px rgba(0, 0, 0, 0.78);
     }
 
@@ -1739,8 +1758,8 @@
 
     .info-card {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.09), rgba(59, 130, 246, 0.09));
-      backdrop-filter: blur(20px) saturate(155%);
-      -webkit-backdrop-filter: blur(20px) saturate(155%);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       box-shadow: var(--glass-highlight), 0 14px 32px rgba(0, 0, 0, 0.35);
       border-radius: 28px;
@@ -1772,6 +1791,7 @@
       font-size: 0.89rem;
     }
 
+    /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -2875,6 +2895,12 @@
         </a>
 
         <div class="nav-actions">
+          <button type="button" class="glass-pill-btn icon-nav-btn" onclick="toggleGlassMode()" title="تبديل نمط الزجاج Glass Mode" aria-label="تبديل نمط الزجاج">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"></path>
+            </svg>
+          </button>
+
           <button type="button" class="glass-pill-btn icon-nav-btn" id="notif-bell-btn" onclick="openNotifModal()" aria-label="الإشعارات">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -2912,7 +2938,7 @@
             <span class="owner-gold-tag mono">ADMIN</span>
           </div>
           <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
-            <div id="supabase-status-pill" class="owner-kpi-pill mono">Supabase: جاري الاتصال...</div>
+            <div id="supabase-status-pill" class="owner-kpi-pill mono">Supabase: فحص سريع...</div>
             <div class="owner-quick-kpis" id="owner-quick-kpis"></div>
           </div>
         </div>
@@ -3055,7 +3081,7 @@
       <div class="search-status-line" id="search-status-line"></div>
     </div>
 
-    <!-- Upgraded Developer Support / Donations Hub (Kaza Wallet) -->
+    <!-- Developer Support / Donations Hub (Kaza Wallet) -->
     <section class="support-banner animate-enter" id="support-section">
       <div class="support-card">
         <div class="support-head">
@@ -3311,7 +3337,7 @@
     </div>
   </div>
 
-  <!-- Modal: Upgraded Login / Visitor Registration -->
+  <!-- Modal: Login / Visitor Registration -->
   <div class="modal-backdrop" id="login-modal-backdrop" onclick="closeLoginModal()">
     <div class="modal-card" id="login-modal-card" style="max-width:450px;" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:flex-end; margin-bottom:2px;">
@@ -3582,11 +3608,16 @@
   <script>
     const BRAND_NAME = "JadDev";
     const KAZA_WALLET_ID = "k6350326";
-    const GITHUB_USERNAME = "jadkoudmani";
+    const GITHUB_USERNAME = "dkoudmani100-svg";
     const OWNER_CREDENTIALS = {
       email: "jadkoudmani100@gmail.com",
       pass: "Jadkoudmani572010"
     };
+
+    const SUPABASE_URL = "https://uudtcckpxqqbuhqswpuv.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1ZHRjY2tweHFxYnVocXN3cHV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTIxODQsImV4cCI6MjA4ODIyODE4NH0.U1oAKjJwxAERDivVPU002_tVobaoJr5hcXVOKkFVLQE";
+    const TABLE_NAME = "projects";
+    const SUPABASE_TIMEOUT_MS = 5000;
 
     const USER_SESSION_KEY = "jaddev_user_session_v20";
     const PROFILE_META_KEY = "jaddev_profile_meta_v20";
@@ -3594,6 +3625,8 @@
     const BOOKMARKS_KEY = "jaddev_bookmarks_v20";
     const CLOUD_SNAPSHOT_KEY = "jaddev_cloud_snapshot_v20";
     const GITHUB_CACHE_KEY = "jaddev_github_repos_v20";
+    const SYNC_OUTBOX_KEY = "jaddev_sync_outbox_v20";
+    const GLASS_MODE_KEY = "jaddev_glass_mode_v20";
     const DB_NAME = "JadDevStorageDB_v20";
     const STORE_NAME = "projects";
     const RICH_PAYLOAD_PREFIX = "JADDEV_JSON::";
@@ -3602,6 +3635,7 @@
     let currentUser = JSON.parse(localStorage.getItem(USER_SESSION_KEY) || "null");
     let profileMetaMap = JSON.parse(localStorage.getItem(PROFILE_META_KEY) || "{}");
     let bookmarkedIds = new Set(JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || "[]"));
+    let syncOutbox = JSON.parse(localStorage.getItem(SYNC_OUTBOX_KEY) || "[]");
     let localProjectsList = [];
     let supabaseRemoteProjects = [];
     let githubSyncedProjects = [];
@@ -3614,6 +3648,7 @@
     let notifFilterMode = "all";
     let authMode = "login";
     let selectedSupportAmount = "";
+    let isCloudSyncing = false;
     let notifications = JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || "null") || [
       {
         id: "welcome-1",
@@ -3642,6 +3677,20 @@
       return document.getElementById(id);
     }
 
+    function toggleGlassMode() {
+      document.body.classList.toggle("crystal-glass");
+      const isCrystal = document.body.classList.contains("crystal-glass");
+      localStorage.setItem(GLASS_MODE_KEY, isCrystal ? "crystal" : "obsidian");
+      pushNotification(
+        "تم تغيير نمط الواجهة",
+        isCrystal ? "تم تفعيل وضع الزجاج الشفاف (Crystal Glass Mode)." : "تم تفعيل وضع الزجاج الداكن (Obsidian Glass).",
+        true,
+        false,
+        null,
+        "المظهر"
+      );
+    }
+
     function updateNetworkBadge() {
       const pill = byId("net-status-pill");
       const label = byId("net-status-label");
@@ -3653,7 +3702,7 @@
 
     window.addEventListener("online", () => {
       updateNetworkBadge();
-      if (typeof window.refreshJadDevSupabase === "function") window.refreshJadDevSupabase();
+      loadCloudProjects(false);
     });
     window.addEventListener("offline", updateNetworkBadge);
 
@@ -4118,6 +4167,230 @@
       });
     }
 
+    // ==========================================
+    // ZERO-HANG SUPABASE REST ENGINE + AUTO SYNC
+    // ==========================================
+    function saveSyncOutbox() {
+      try {
+        localStorage.setItem(SYNC_OUTBOX_KEY, JSON.stringify(syncOutbox));
+      } catch (e) {}
+      renderAdminQuickKPIs();
+    }
+
+    async function supabaseRest(path, options = {}, timeoutMs = SUPABASE_TIMEOUT_MS) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+          ...options,
+          signal: controller.signal,
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation",
+            ...(options.headers || {})
+          }
+        });
+        clearTimeout(timer);
+        if (!res.ok) {
+          const errMsg = await res.text().catch(() => "");
+          throw new Error(`HTTP ${res.status} ${errMsg}`);
+        }
+        if (res.status === 204) return null;
+        return await res.json();
+      } catch (err) {
+        clearTimeout(timer);
+        throw err;
+      }
+    }
+
+    function setSupabasePillStatus(state, labelText) {
+      const pill = byId("supabase-status-pill");
+      if (!pill) return;
+      pill.classList.remove("supabase-pill-ok", "supabase-pill-warn", "supabase-pill-err");
+      if (state === "ok") pill.classList.add("supabase-pill-ok");
+      if (state === "warn") pill.classList.add("supabase-pill-warn");
+      if (state === "err") pill.classList.add("supabase-pill-err");
+      pill.textContent = labelText;
+    }
+
+    async function flushSupabaseOutbox() {
+      if (!syncOutbox.length) return;
+      const remaining = [];
+      for (const item of syncOutbox) {
+        try {
+          if (item.action === "insert") {
+            await supabaseRest(TABLE_NAME, {
+              method: "POST",
+              body: JSON.stringify(item.payload)
+            });
+          } else if (item.action === "update" && item.remoteId) {
+            await supabaseRest(`${TABLE_NAME}?id=eq.${item.remoteId}`, {
+              method: "PATCH",
+              body: JSON.stringify(item.payload)
+            });
+          } else if (item.action === "delete" && item.remoteId) {
+            await supabaseRest(`${TABLE_NAME}?id=eq.${item.remoteId}`, {
+              method: "DELETE"
+            });
+          }
+        } catch (e) {
+          remaining.push(item);
+        }
+      }
+      syncOutbox = remaining;
+      saveSyncOutbox();
+    }
+
+    async function loadCloudProjects(manualTrigger = false) {
+      if (isCloudSyncing) return;
+      isCloudSyncing = true;
+      setSupabasePillStatus("", "Supabase: جاري الفحص السريع...");
+      const t0 = performance.now();
+
+      try {
+        await flushSupabaseOutbox();
+
+        let rows;
+        try {
+          rows = await supabaseRest(`${TABLE_NAME}?select=*&order=id.desc`);
+        } catch (firstErr) {
+          if (String(firstErr.message).includes("404")) {
+            rows = await supabaseRest(`Projects?select=*&order=id.desc`);
+          } else {
+            throw firstErr;
+          }
+        }
+
+        const pingMs = Math.round(performance.now() - t0);
+        const safeRows = Array.isArray(rows) ? rows : [];
+        try {
+          localStorage.setItem(CLOUD_SNAPSHOT_KEY, JSON.stringify(safeRows));
+        } catch (e) {}
+
+        const previousIds = new Set(supabaseRemoteProjects.map(p => p.id));
+        const mapped = safeRows.map(parseSupabaseRow);
+
+        if (hasReceivedInitialSupabaseSync) {
+          const newlyAdded = mapped.filter(m => !previousIds.has(m.id));
+          if (newlyAdded.length > 0 && !isOwner()) {
+            const latest = newlyAdded[0];
+            pushNotification(
+              "مشروع جديد على JadDev",
+              `تمت إضافة "${latest.title}" (${latest.version})`,
+              true,
+              true,
+              latest.id,
+              "تحديث مباشر"
+            );
+          }
+        }
+
+        supabaseRemoteProjects = mapped;
+        hasReceivedInitialSupabaseSync = true;
+        setSupabasePillStatus("ok", `Supabase: متصل (${safeRows.length}) • ${pingMs}ms`);
+        renderStats();
+        applyFilters();
+        renderAdminQuickKPIs();
+        if (isOwner() && byId("manage-modal-backdrop")?.classList.contains("open")) {
+          renderAdminManageList();
+        }
+        if (manualTrigger) {
+          pushNotification("مزامنة Supabase", `تمت المزامنة بنجاح خلال ${pingMs}ms.`, true, false, null, "Supabase");
+        }
+      } catch (err) {
+        const isTimeout = err && err.name === "AbortError";
+        setSupabasePillStatus(
+          "warn",
+          isTimeout
+            ? "Supabase: الشبكة بطيئة (وضع محلي نشط)"
+            : "Supabase: وضع محلي Offline (المزامنة تلقائية)"
+        );
+        if (manualTrigger) {
+          pushNotification(
+            "وضع Offline الذكي",
+            "خادم Supabase بطيء على شبكتك الحالية — بياناتك محفوظة محلياً وستُرفع تلقائياً عند توفر الاتصال.",
+            true,
+            false,
+            null,
+            "Supabase"
+          );
+        }
+      } finally {
+        isCloudSyncing = false;
+      }
+    }
+
+    window.saveProjectToSupabase = async function (projectData, existingRemoteId = null) {
+      const payload = {
+        name: projectData.title,
+        description: serializeRichPayload(projectData),
+        url: (projectData.url && !projectData.url.startsWith("blob:")) ? projectData.url : "#"
+      };
+
+      try {
+        if (existingRemoteId) {
+          await supabaseRest(`${TABLE_NAME}?id=eq.${existingRemoteId}`, {
+            method: "PATCH",
+            body: JSON.stringify(payload)
+          });
+        } else {
+          const inserted = await supabaseRest(TABLE_NAME, {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          if (Array.isArray(inserted) && inserted[0]) {
+            projectData.remoteId = inserted[0].id;
+            await upsertProjectInDB(projectData);
+          }
+        }
+        await loadCloudProjects(false);
+      } catch (err) {
+        syncOutbox.push({
+          action: existingRemoteId ? "update" : "insert",
+          remoteId: existingRemoteId,
+          payload
+        });
+        saveSyncOutbox();
+        setSupabasePillStatus("warn", `Supabase: محفوظ محلياً (${syncOutbox.length} بانتظار الرفع)`);
+      }
+    };
+
+    window.deleteProjectFromSupabase = async function (remoteId) {
+      if (!remoteId) return;
+      try {
+        await supabaseRest(`${TABLE_NAME}?id=eq.${remoteId}`, {
+          method: "DELETE"
+        });
+        await loadCloudProjects(false);
+      } catch (err) {
+        syncOutbox.push({ action: "delete", remoteId });
+        saveSyncOutbox();
+      }
+    };
+
+    window.incrementSupabaseDownloads = async function (remoteId, rawRowData) {
+      if (!remoteId || !rawRowData) return;
+      try {
+        const desc = rawRowData.description || "";
+        if (typeof desc === "string" && desc.startsWith(RICH_PAYLOAD_PREFIX)) {
+          const parsed = JSON.parse(desc.slice(RICH_PAYLOAD_PREFIX.length));
+          parsed.downloads = (Number(parsed.downloads) || 0) + 1;
+          await supabaseRest(`${TABLE_NAME}?id=eq.${remoteId}`, {
+            method: "PATCH",
+            body: JSON.stringify({ description: RICH_PAYLOAD_PREFIX + JSON.stringify(parsed) })
+          });
+        }
+      } catch (e) {}
+    };
+
+    window.syncSupabaseNow = async function () {
+      await loadCloudProjects(true);
+    };
+
+    window.refreshJadDevSupabase = () => loadCloudProjects(false);
+
     async function syncGitHubNow(notifyUser = false) {
       if (!GITHUB_USERNAME) return;
       try {
@@ -4129,7 +4402,7 @@
         if (!Array.isArray(repos)) return;
 
         const mapped = repos
-          .filter(r => !r.fork && !r.archived)
+          .filter(r => !r.fork && !r.archived && r.name !== `${GITHUB_USERNAME}.github.io`)
           .map(repo => {
             const topics = Array.isArray(repo.topics) ? repo.topics : [];
             const isOfflineRepo = topics.includes("offline") || (repo.description || "").toLowerCase().includes("offline");
@@ -4174,7 +4447,7 @@
         }
       } catch (err) {
         if (notifyUser) {
-          pushNotification("تعذّر تحديث GitHub", "تحقق من الاتصال أو اسم المستخدم.", true, false, null, "GitHub");
+          pushNotification("تعذّر تحديث GitHub", "تحقق من الاتصال بالشبكة.", true, false, null, "GitHub");
         }
       }
     }
@@ -4483,11 +4756,15 @@
       const appsCount = allItems.filter(p => p.type === "app").length;
       const sitesCount = allItems.filter(p => p.type === "website").length;
       const totalDownloads = allItems.reduce((acc, p) => acc + (Number(p.downloads) || 0), 0);
+      const queueBadge = syncOutbox.length > 0
+        ? `<span class="owner-kpi-pill supabase-pill-warn">بانتظار الرفع: <strong class="mono">${syncOutbox.length}</strong></span>`
+        : "";
       kpiEl.innerHTML = `
         <span class="owner-kpi-pill">المجموع: <strong class="mono">${allItems.length}</strong></span>
         <span class="owner-kpi-pill">تطبيقات: <strong class="mono">${appsCount}</strong></span>
         <span class="owner-kpi-pill">مواقع: <strong class="mono">${sitesCount}</strong></span>
         <span class="owner-kpi-pill">التحميلات: <strong class="mono">${totalDownloads}</strong></span>
+        ${queueBadge}
       `;
     }
 
@@ -5205,9 +5482,7 @@
                 url: sanitizeUrl(item.url)
               });
               await upsertProjectInDB(normalized);
-              if (typeof window.saveProjectToSupabase === "function") {
-                await window.saveProjectToSupabase(normalized, null);
-              }
+              await window.saveProjectToSupabase(normalized, null);
             }
           }
           renderStats();
@@ -5524,26 +5799,16 @@
         const icon = coverSrc
           ? `<img src="${coverSrc}" alt="" />`
           : (kind === "app"
-              ? `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                   <polyline points="2 17 12 22 22 17"></polyline>
-                   <polyline points="2 12 12 17 22 12"></polyline>
-                 </svg>`
-              : `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                   <line x1="8" y1="21" x2="16" y2="21"></line>
-                   <line x1="12" y1="17" x2="12" y2="21"></line>
-                 </svg>`);
+              ? `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`
+              : `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`);
 
-        const ownerCardActions = (ownerActive && item.source !== "github")
-          ? `<div class="card-actions" style="margin-top:8px;">
-               <button type="button" class="btn btn-edit" onclick="openEditProjectModal('${safeId}')">تعديل</button>
-               <button type="button" class="btn btn-del" onclick="askDeleteConfirm('${safeId}')">حذف</button>
-             </div>`
+        const ownerBtns = (ownerActive && item.source !== "github")
+          ? `<button type="button" class="btn btn-edit" onclick="openEditProjectModal('${safeId}')">تعديل</button>
+             <button type="button" class="btn btn-del" onclick="askDeleteConfirm('${safeId}')">حذف</button>`
           : "";
 
         return `
-          <article class="card" style="animation-delay: ${delay}s;" onpointermove="handleCardPointerMove(event, this)">
+          <article class="card" style="animation-delay:${delay}s" onpointermove="handleCardPointerMove(event, this)">
             <div>
               ${coverHtml}
               <div class="card-top">
@@ -5551,31 +5816,30 @@
                 <div class="badges">
                   ${freshBadge}
                   ${statusBadge}
-                  <span class="badge badge-meta mono">${escapeHTML(item.version)}</span>
-                  ${item.meta ? `<span class="badge badge-meta mono">${escapeHTML(item.meta)}</span>` : ""}
                   ${dlBadge}
+                  <span class="badge badge-meta mono">${escapeHTML(item.version)}</span>
                 </div>
               </div>
               <div class="card-title-row">
                 <h3>${safeTitle}</h3>
-                <button type="button" class="fav-btn ${isSaved ? "saved" : ""}" onclick="toggleBookmark('${safeId}')" aria-label="حفظ في المفضلة">
+                <button type="button" class="fav-btn ${isSaved ? "saved" : ""}" onclick="toggleBookmark('${safeId}')" title="${isSaved ? "إزالة من المفضلة" : "حفظ في المفضلة"}" aria-label="حفظ في المفضلة">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="${isSaved ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2.2">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                 </button>
               </div>
               <p>${escapeHTML(item.shortDesc)}</p>
+              ${linkStripHtml}
               <div class="tags">
                 ${(item.features || []).slice(0, 3).map(f => `<span class="tag">${escapeHTML(f)}</span>`).join("")}
               </div>
-              ${linkStripHtml}
-              ${dlProgressHtml}
             </div>
             <div>
+              ${dlProgressHtml}
               <div class="card-actions">
                 ${primaryActionHtml}
                 <button type="button" class="btn btn-ghost" onclick="openModal('${safeId}')">الميزات</button>
-                <button type="button" class="btn btn-copy" title="مشاركة الرابط والوصف" onclick="shareOrCopyProject('${safeId}', false)">
+                <button type="button" class="btn btn-copy" title="مشاركة / نسخ" onclick="shareOrCopyProject('${safeId}')">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                     <circle cx="18" cy="5" r="3"></circle>
                     <circle cx="6" cy="12" r="3"></circle>
@@ -5584,8 +5848,8 @@
                     <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                   </svg>
                 </button>
+                ${ownerBtns}
               </div>
-              ${ownerCardActions}
             </div>
           </article>
         `;
@@ -5596,42 +5860,33 @@
       const item = getAllCombinedProjects().find(p => p.id === id);
       if (!item) return;
 
-      const safeTitle = escapeHTML(item.title);
-      const safeUrl = sanitizeUrl(item.url);
-      const visibleLinkText = formatDisplayUrl(item.url);
-      const extraImgs = Array.isArray(item.detailImages) ? item.detailImages : [];
-      const dlCount = Number(item.downloads) || 0;
+      const mTitle = byId("modal-title");
+      const mDesc = byId("modal-desc");
+      if (mTitle) mTitle.textContent = item.title;
+      if (mDesc) mDesc.textContent = item.shortDesc;
 
-      const titleEl = byId("modal-title");
-      const descEl = byId("modal-desc");
       const badgesEl = byId("modal-badges");
-      const directLinkBox = byId("modal-direct-link-box");
-      const changelogBox = byId("modal-changelog-box");
-      const featEl = byId("modal-features");
-      const gallerySection = byId("modal-gallery-section");
-      const ctaEl = byId("modal-cta");
-
-      if (titleEl) titleEl.textContent = item.title;
-      if (descEl) descEl.textContent = item.shortDesc;
-
       if (badgesEl) {
         badgesEl.innerHTML = `
-          ${isRecentProject(item) ? `<span class="badge badge-new">جديد</span>` : ""}
-          ${item.offline
-            ? `<span class="badge badge-offline"><span class="pulse-dot"></span> يعمل أوفلاين</span>`
-            : `<span class="badge badge-online"><span class="status-dot-inline"></span> موقع إلكتروني</span>`}
+          ${item.offline ? `<span class="badge badge-offline">Offline Ready</span>` : `<span class="badge badge-online">Online</span>`}
           <span class="badge badge-meta mono">${escapeHTML(item.version)}</span>
-          ${item.meta ? `<span class="badge badge-meta mono">${escapeHTML(item.meta)}</span>` : ""}
-          <span class="badge badge-downloads mono">${dlCount} تحميل/زيارة</span>
+          <span class="badge badge-downloads mono">${item.downloads || 0} تفاعل</span>
         `;
       }
 
+      const directLinkBox = byId("modal-direct-link-box");
+      const safeUrl = sanitizeUrl(item.url);
+      const visibleLink = formatDisplayUrl(item.url);
       if (directLinkBox) {
-        if (visibleLinkText) {
+        if (visibleLink) {
           directLinkBox.innerHTML = `
-            <span class="modal-section-label">الرابط المباشر</span>
+            <span class="modal-section-label">الرابط المباشر للبرنامج / الموقع</span>
             <div class="card-link-strip" style="margin-bottom:0;">
               <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleWebsiteVisit('${escapeHTML(item.id)}')" class="card-link-anchor mono">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="flex-shrink:0;">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
                 <span>${escapeHTML(safeUrl)}</span>
               </a>
               <button type="button" class="card-link-copy-mini" title="نسخ الرابط" onclick="shareOrCopyProject('${escapeHTML(item.id)}', true)">
@@ -5647,88 +5902,88 @@
         }
       }
 
+      const changelogBox = byId("modal-changelog-box");
       if (changelogBox) {
-        if (item.changelog && item.changelog.trim()) {
-          changelogBox.innerHTML = `
-            <div style="background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.28); border-radius:18px; padding:10px 14px; margin-bottom:14px;">
-              <span style="display:block; font-size:0.75rem; font-weight:800; color:#67e8f9; margin-bottom:2px;">ما الجديد في هذا الإصدار</span>
-              <span style="font-size:0.84rem; color:#e2e8f0;">${escapeHTML(item.changelog)}</span>
-            </div>
-          `;
-        } else {
-          changelogBox.innerHTML = "";
-        }
+        changelogBox.innerHTML = item.changelog
+          ? `<div style="padding:10px 13px; border-radius:16px; background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.25); font-size:0.83rem; color:#a5f3fc; margin-bottom:12px;">
+               <strong>ما الجديد:</strong> ${escapeHTML(item.changelog)}
+             </div>`
+          : "";
       }
 
-      if (featEl) {
-        featEl.innerHTML = (item.features || []).map(f => `
+      const mFeatures = byId("modal-features");
+      if (mFeatures) {
+        mFeatures.innerHTML = (item.features || []).map(f => `
           <li>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <span>${escapeHTML(f)}</span>
+            ${escapeHTML(f)}
           </li>
         `).join("");
       }
 
-      if (gallerySection) {
-        if (extraImgs.length > 0) {
-          const total = extraImgs.length;
-          const navControlsHtml = total > 1
+      const gallerySec = byId("modal-gallery-section");
+      const detailImgs = Array.isArray(item.detailImages) ? item.detailImages : [];
+      const totalSlides = detailImgs.length;
+
+      if (gallerySec) {
+        if (totalSlides > 0) {
+          const slidesHtml = detailImgs.map((src, i) => `
+            <div class="insta-slide" onclick="openLightbox('${src}')">
+              <img src="${src}" alt="صورة إضافية ${i + 1}" />
+            </div>
+          `).join("");
+
+          const navControlsHtml = totalSlides > 1
             ? `<div class="insta-nav-row">
-                 <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(-1, ${total})" aria-label="السابق">‹</button>
+                 <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(-1, ${totalSlides})" aria-label="السابق">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                     <polyline points="9 18 15 12 9 6"></polyline>
+                   </svg>
+                 </button>
                  <div class="insta-dots" id="insta-dots">
-                   ${extraImgs.map((_, idx) => `
-                     <button type="button" class="insta-dot ${idx === 0 ? "active" : ""}" onclick="goToCarouselSlide(${idx}, ${total})" aria-label="صورة ${idx + 1}"></button>
+                   ${detailImgs.map((_, i) => `
+                     <button type="button" class="insta-dot ${i === 0 ? "active" : ""}" onclick="goToCarouselSlide(${i}, ${totalSlides})" aria-label="صورة ${i + 1}"></button>
                    `).join("")}
                  </div>
-                 <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(1, ${total})" aria-label="التالي">›</button>
+                 <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(1, ${totalSlides})" aria-label="التالي">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                     <polyline points="15 18 9 12 15 6"></polyline>
+                   </svg>
+                 </button>
                </div>`
             : "";
 
-          gallerySection.innerHTML = `
-            <span class="modal-section-label">صور إضافية — اسحب أو قلّب بين الصور</span>
+          gallerySec.innerHTML = `
+            <span class="modal-section-label">صور إضافية للتوضيح (${totalSlides}) — اضغط للتكبير</span>
             <div class="insta-carousel">
-              <span class="insta-counter-pill mono" id="insta-counter-pill">1 / ${total}</span>
-              <div class="insta-track" id="insta-carousel-track">
-                ${extraImgs.map((src, idx) => `
-                  <div class="insta-slide" onclick="openLightbox(this.querySelector('img').src)">
-                    <img src="${src}" alt="${safeTitle} - ${idx + 1}" loading="lazy" />
-                  </div>
-                `).join("")}
-              </div>
+              <div class="insta-counter-pill mono" id="insta-counter-pill">1 / ${totalSlides}</div>
+              <div class="insta-track" id="insta-carousel-track">${slidesHtml}</div>
               ${navControlsHtml}
             </div>
           `;
-          initCarouselListeners(total);
+          setTimeout(() => initCarouselListeners(totalSlides), 30);
         } else {
-          gallerySection.innerHTML = "";
+          gallerySec.innerHTML = "";
         }
       }
 
-      const dlState = downloadStates.get(item.id);
-      const isDone = dlState && dlState.status === "completed";
-      const adminButtons = (isOwner() && item.source !== "github")
-        ? `<button type="button" class="btn btn-edit" style="flex:0.45;" onclick="closeModal(); openEditProjectModal('${escapeHTML(item.id)}');">تعديل</button>
-           <button type="button" class="btn btn-del" style="flex:0.45;" onclick="closeModal(); askDeleteConfirm('${escapeHTML(item.id)}');">حذف</button>`
+      const ownerControls = (isOwner() && item.source !== "github")
+        ? `<button type="button" class="btn btn-edit" onclick="closeModal(); openEditProjectModal('${escapeHTML(item.id)}')">تعديل</button>
+           <button type="button" class="btn btn-del" onclick="closeModal(); askDeleteConfirm('${escapeHTML(item.id)}')">حذف</button>`
         : "";
 
-      if (ctaEl) {
-        if (item.type === "app") {
-          const btnText = isDone ? (dlState.isExternalLink ? "فتح الرابط مجدداً" : "تثبيت") : "تحميل الآن";
-          const btnFn = isDone ? `installDownloadedApp('${escapeHTML(item.id)}')` : `startAppDownload('${escapeHTML(item.id)}')`;
-          ctaEl.innerHTML = `
-            <button type="button" class="btn ${isDone ? "btn-install" : "btn-offline"}" onclick="closeModal(); ${btnFn};">${btnText}</button>
-            ${adminButtons}
-            <button type="button" class="btn btn-ghost" style="flex:0.45;" onclick="closeModal()">إغلاق</button>
-          `;
-        } else {
-          ctaEl.innerHTML = `
-            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleWebsiteVisit('${escapeHTML(item.id)}')" class="btn btn-primary">زيارة الموقع</a>
-            ${adminButtons}
-            <button type="button" class="btn btn-ghost" style="flex:0.45;" onclick="closeModal()">إغلاق</button>
-          `;
-        }
+      const primaryModalCta = item.type === "app"
+        ? `<button type="button" class="btn btn-offline" onclick="closeModal(); startAppDownload('${escapeHTML(item.id)}')">تحميل التطبيق الآن</button>`
+        : `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleWebsiteVisit('${escapeHTML(item.id)}')" class="btn btn-primary">زيارة الموقع</a>`;
+
+      const mCta = byId("modal-cta");
+      if (mCta) {
+        mCta.innerHTML = `
+          ${primaryModalCta}
+          ${ownerControls}
+        `;
       }
 
       const backdrop = byId("modal-backdrop");
@@ -5740,61 +5995,25 @@
       if (backdrop) backdrop.classList.remove("open");
     }
 
-    function shareOrCopyProject(id, linkOnly = false) {
-      const item = getAllCombinedProjects().find(p => p.id === id);
-      if (!item) return;
-      const safeUrl = sanitizeUrl(item.url);
-      const shareUrl = (safeUrl && safeUrl !== "#" && !safeUrl.startsWith("blob:")) ? safeUrl : window.location.href;
-      const text = linkOnly ? shareUrl : `${item.title} (${item.version}) — ${item.shortDesc}\n${shareUrl}`;
-
-      if (!linkOnly && navigator.share) {
-        navigator.share({ title: item.title, text: item.shortDesc, url: shareUrl }).catch(() => {});
-        return;
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          pushNotification(linkOnly ? "تم نسخ الرابط" : "تم النسخ", `تم نسخ ${linkOnly ? "الرابط المباشر" : "معلومات المشروع"} بنجاح.`, true, false, item.id, "مشاركة");
-        }).catch(() => {
-          fallbackCopyText(text);
-          pushNotification(linkOnly ? "تم نسخ الرابط" : "تم النسخ", `تم نسخ ${linkOnly ? "الرابط المباشر" : "معلومات المشروع"} بنجاح.`, true, false, item.id, "مشاركة");
-        });
-      } else {
-        fallbackCopyText(text);
-        pushNotification(linkOnly ? "تم نسخ الرابط" : "تم النسخ", `تم نسخ ${linkOnly ? "الرابط المباشر" : "معلومات المشروع"} بنجاح.`, true, false, item.id, "مشاركة");
-      }
-    }
-
-    function resetAddModalDrafts() {
+    function openAddModal() {
+      if (!isOwner()) return;
       editingProjectId = null;
+      const mTitle = byId("add-modal-title");
+      const sBtn = byId("save-proj-btn");
+      const fEl = byId("add-form");
+      if (mTitle) mTitle.textContent = "إضافة برنامج أو موقع";
+      if (sBtn) sBtn.textContent = "نشر في الموقع ومزامنة Supabase";
+      if (fEl) fEl.reset();
+      draftFeatures = [];
+      renderDraftFeatures();
+      clearCoverImage();
+      clearDetailImages();
       pickedFileBlob = null;
       pickedFileName = "";
       pickedFileSize = "";
-      pickedCoverImage = "";
-      pickedDetailImages = [];
-      draftFeatures = [];
-
-      const formEl = byId("add-form");
-      if (formEl) formEl.reset();
-      const fileLbl = byId("file-label-text");
-      if (fileLbl) fileLbl.textContent = "اضغط لاختيار ملف APK أو HTML محلي";
-      const modalTitle = byId("add-modal-title");
-      if (modalTitle) modalTitle.textContent = "إضافة برنامج أو موقع";
-      const saveBtn = byId("save-proj-btn");
-      if (saveBtn) saveBtn.textContent = "نشر في الموقع ومزامنة Supabase";
-
-      renderDraftFeatures();
-      renderCoverPreview();
-      renderDetailImagesPreview();
+      const fLbl = byId("file-label-text");
+      if (fLbl) fLbl.textContent = "اضغط لاختيار ملف APK أو HTML محلي";
       toggleProjectTypeFields();
-    }
-
-    function openAddModal() {
-      if (!isOwner()) {
-        openAccountModal();
-        return;
-      }
-      resetAddModalDrafts();
       const backdrop = byId("add-modal-backdrop");
       if (backdrop) backdrop.classList.add("open");
     }
@@ -5804,38 +6023,37 @@
       const item = getAllCombinedProjects().find(p => p.id === id);
       if (!item || item.source === "github") return;
 
-      resetAddModalDrafts();
+      closeManageModal();
       editingProjectId = item.id;
+      const mTitle = byId("add-modal-title");
+      const sBtn = byId("save-proj-btn");
+      if (mTitle) mTitle.textContent = "تعديل المشروع ومزامنة Supabase";
+      if (sBtn) sBtn.textContent = "حفظ التعديلات في السحابة";
 
-      const modalTitle = byId("add-modal-title");
-      const saveBtn = byId("save-proj-btn");
-      const typeSel = byId("proj-type");
-      const verInp = byId("proj-version");
-      const titleInp = byId("proj-title");
-      const urlInp = byId("proj-url");
-      const descInp = byId("proj-desc");
-      const changelogInp = byId("proj-changelog");
-      const offlineChk = byId("proj-offline");
+      byId("proj-type").value = item.type;
+      byId("proj-version").value = item.version || "";
+      byId("proj-title").value = item.title || "";
+      byId("proj-url").value = (item.url && !item.url.startsWith("blob:") && item.url !== "#") ? item.url : "";
+      byId("proj-desc").value = item.shortDesc || "";
+      byId("proj-changelog").value = item.changelog || "";
+      byId("proj-offline").checked = Boolean(item.offline);
 
-      if (modalTitle) modalTitle.textContent = `تعديل: ${item.title}`;
-      if (saveBtn) saveBtn.textContent = "حفظ التعديلات ومزامنة Supabase";
-      if (typeSel) typeSel.value = item.type === "website" ? "website" : "app";
-      if (verInp) verInp.value = item.version || "v1.0";
-      if (titleInp) titleInp.value = item.title || "";
-      if (urlInp) urlInp.value = (item.url && !item.url.startsWith("blob:") && item.url !== "#") ? item.url : "";
-      if (descInp) descInp.value = item.shortDesc || "";
-      if (changelogInp) changelogInp.value = item.changelog || "";
-      if (offlineChk) offlineChk.checked = Boolean(item.offline);
+      draftFeatures = [...(item.features || [])];
+      renderDraftFeatures();
 
       pickedCoverImage = item.coverImage || "";
-      pickedDetailImages = Array.isArray(item.detailImages) ? [...item.detailImages] : [];
-      draftFeatures = Array.isArray(item.features) ? [...item.features] : [];
-
-      toggleProjectTypeFields();
-      renderDraftFeatures();
       renderCoverPreview();
+
+      pickedDetailImages = Array.isArray(item.detailImages) ? [...item.detailImages] : [];
       renderDetailImagesPreview();
 
+      pickedFileBlob = item.fileBlob || null;
+      pickedFileName = item.fileName || "";
+      pickedFileSize = item.meta || "";
+      const fLbl = byId("file-label-text");
+      if (fLbl) fLbl.textContent = pickedFileName ? `الملف الحالي: ${pickedFileName}` : "اضغط لاختيار ملف APK أو HTML محلي";
+
+      toggleProjectTypeFields();
       const backdrop = byId("add-modal-backdrop");
       if (backdrop) backdrop.classList.add("open");
     }
@@ -5846,20 +6064,21 @@
     }
 
     function toggleProjectTypeFields() {
-      const typeSel = byId("proj-type");
-      const appFields = byId("app-only-fields");
-      const urlLabel = byId("url-label");
-      const urlInput = byId("proj-url");
-      if (!typeSel || !appFields || !urlLabel || !urlInput) return;
+      const typeEl = byId("proj-type");
+      const appFieldsEl = byId("app-only-fields");
+      const labelEl = byId("url-label");
+      const urlInputEl = byId("proj-url");
+      if (!typeEl) return;
 
-      if (typeSel.value === "app") {
-        appFields.style.display = "block";
-        urlLabel.textContent = "الرابط المباشر للتحميل (MediaFire / APK) — سيظهر بوضوح في البطاقة";
-        urlInput.placeholder = "https://www.mediafire.com/...";
-      } else {
-        appFields.style.display = "none";
-        urlLabel.textContent = "رابط الموقع الإلكتروني — سيظهر بوضوح في البطاقة";
-        urlInput.placeholder = "https://example.com";
+      const isApp = typeEl.value === "app";
+      if (appFieldsEl) appFieldsEl.style.display = isApp ? "block" : "none";
+      if (labelEl) {
+        labelEl.textContent = isApp
+          ? "الرابط المباشر للتحميل (MediaFire / APK) — سيظهر بوضوح في البطاقة"
+          : "رابط الموقع (URL) — سيظهر بوضوح في البطاقة";
+      }
+      if (urlInputEl) {
+        urlInputEl.placeholder = isApp ? "https://www.mediafire.com/..." : "https://...";
       }
     }
 
@@ -5868,110 +6087,97 @@
       if (!file) return;
       pickedFileBlob = file;
       pickedFileName = file.name;
-      pickedFileSize = (file.size / (1024 * 1024)).toFixed(1) + " MB";
-      const lbl = byId("file-label-text");
-      if (lbl) lbl.textContent = `تم اختيار: ${file.name} (${pickedFileSize})`;
+      const mb = (file.size / (1024 * 1024)).toFixed(2);
+      pickedFileSize = `${mb} MB`;
+      const fLbl = byId("file-label-text");
+      if (fLbl) fLbl.textContent = `تم اختيار: ${file.name} (${pickedFileSize})`;
+      const titleInput = byId("proj-title");
+      if (titleInput && !titleInput.value.trim()) {
+        titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+      }
     }
 
     async function saveProjectForm(e) {
       e.preventDefault();
       if (!isOwner()) return;
 
-      const saveBtn = byId("save-proj-btn");
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = "جاري الحفظ والمزامنة...";
+      const type = byId("proj-type").value;
+      const version = byId("proj-version").value.trim() || "v1.0";
+      const title = byId("proj-title").value.trim();
+      const shortDesc = byId("proj-desc").value.trim();
+      const changelog = byId("proj-changelog").value.trim();
+      const offline = type === "app" ? byId("proj-offline").checked : false;
+      const rawUrl = sanitizeUrl(byId("proj-url").value.trim());
+
+      const singleInp = byId("feature-single-input");
+      const singleVal = singleInp ? singleInp.value.trim() : "";
+      if (singleVal && !draftFeatures.includes(singleVal)) {
+        draftFeatures.push(singleVal);
       }
 
+      const features = draftFeatures.length
+        ? [...draftFeatures]
+        : (offline ? ["يعمل بدون إنترنت", "مجاني بالكامل"] : ["سريع وخفيف", "مجاني بالكامل"]);
+
+      const existing = editingProjectId ? getAllCombinedProjects().find(p => p.id === editingProjectId) : null;
+      const finalId = editingProjectId || ("proj-" + Date.now());
+      const finalRemoteId = existing ? (existing.remoteId || null) : null;
+
+      let finalUrl = rawUrl !== "#" ? rawUrl : "#";
+      let meta = pickedFileSize || (existing ? existing.meta : (type === "app" ? "APK" : "Web"));
+
+      const projectObj = {
+        id: finalId,
+        remoteId: finalRemoteId,
+        createdAt: existing ? (existing.createdAt || Date.now()) : Date.now(),
+        type,
+        title,
+        version,
+        meta,
+        offline,
+        shortDesc,
+        changelog,
+        features,
+        coverImage: pickedCoverImage || "",
+        detailImages: [...pickedDetailImages],
+        downloads: existing ? (Number(existing.downloads) || 0) : 0,
+        fileBlob: pickedFileBlob || (existing ? existing.fileBlob : null),
+        fileName: pickedFileName || (existing ? existing.fileName : ""),
+        url: finalUrl
+      };
+
       try {
-        const type = byId("proj-type")?.value || "app";
-        const version = (byId("proj-version")?.value || "").trim() || "v1.0";
-        const title = (byId("proj-title")?.value || "").trim();
-        const rawUrl = (byId("proj-url")?.value || "").trim();
-        const desc = (byId("proj-desc")?.value || "").trim();
-        const changelog = (byId("proj-changelog")?.value || "").trim();
-        const offline = type === "app" ? Boolean(byId("proj-offline")?.checked) : false;
-
-        const pendingChip = (byId("feature-single-input")?.value || "").trim();
-        if (pendingChip && !draftFeatures.includes(pendingChip)) {
-          draftFeatures.push(pendingChip);
-          const chipInput = byId("feature-single-input");
-          if (chipInput) chipInput.value = "";
-        }
-
-        const existingItem = editingProjectId
-          ? getAllCombinedProjects().find(p => p.id === editingProjectId)
-          : null;
-
-        let finalUrl = sanitizeUrl(rawUrl || (existingItem && !existingItem.url.startsWith("blob:") ? existingItem.url : "#"));
-        if (type === "app" && pickedFileBlob) {
-          finalUrl = URL.createObjectURL(pickedFileBlob);
-        }
-
-        const features = draftFeatures.length
-          ? [...draftFeatures]
-          : (type === "app"
-              ? ["تطبيق مجاني", offline ? "يعمل بدون إنترنت" : "متوافق مع أندرويد"]
-              : ["موقع مجاني", "تصميم متجاوب"]);
-
-        const projectData = {
-          id: existingItem ? existingItem.id : ("proj-" + Date.now()),
-          remoteId: existingItem ? existingItem.remoteId : null,
-          createdAt: existingItem ? (existingItem.createdAt || Date.now()) : Date.now(),
-          type,
-          title,
-          version,
-          meta: pickedFileSize || (existingItem ? existingItem.meta : "") || (type === "app" ? "APK" : "Web"),
-          offline,
-          shortDesc: desc,
-          changelog,
-          features,
-          coverImage: pickedCoverImage || "",
-          detailImages: [...pickedDetailImages],
-          downloads: existingItem ? (Number(existingItem.downloads) || 0) : 0,
-          url: finalUrl,
-          fileBlob: pickedFileBlob || (existingItem ? existingItem.fileBlob : null),
-          fileName: pickedFileName || (existingItem ? existingItem.fileName : "")
-        };
-
-        await upsertProjectInDB(projectData);
-
-        if (typeof window.saveProjectToSupabase === "function") {
-          await window.saveProjectToSupabase(projectData, existingItem ? existingItem.remoteId : null);
-        }
-
-        const wasEditing = Boolean(existingItem);
+        await upsertProjectInDB(projectObj);
         closeAddModal();
-        resetAddModalDrafts();
         renderStats();
         applyFilters();
-        renderAdminManageList();
         renderAdminQuickKPIs();
 
-        pushNotification(
-          wasEditing ? "تم تحديث المشروع" : "تم النشر بنجاح",
-          wasEditing
-            ? `تم حفظ تعديلات "${title}" ومزامنتها مع Supabase.`
-            : `تم نشر "${title}" ومزامنته مع Supabase ليظهر للجميع.`,
-          true,
-          true,
-          projectData.id,
-          wasEditing ? "تحديث" : "إضافة جديدة"
-        );
+        if (typeof window.saveProjectToSupabase === "function") {
+          window.saveProjectToSupabase(projectObj, finalRemoteId).catch(() => {});
+        }
+
+        if (existing) {
+          pushNotification("تم التحديث", `تم تعديل "${title}" ومزامنته مع السحابة.`, true, false, finalId, "تحديث");
+        } else {
+          pushNotification(
+            type === "app" ? "تطبيق جديد متاح" : "موقع جديد متاح",
+            `تمت إضافة "${title}" (${version}) مجاناً على JadDev`,
+            true,
+            true,
+            finalId,
+            type === "app" ? "تطبيق جديد" : "موقع جديد"
+          );
+        }
       } catch (err) {
         pushNotification(
-          "تنبيه أثناء الحفظ",
-          `تم حفظ المشروع محلياً — تحقق من مزامنة Supabase (${err?.message || ""}).`,
+          "تعذّر الحفظ المحلي",
+          "مساحة التخزين ممتلئة أو الملف كبير جداً. استخدم رابط MediaFire المباشر وصورة أصغر.",
           true,
           false,
           null,
           "تنبيه"
         );
-      } finally {
-        if (saveBtn) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = editingProjectId ? "حفظ التعديلات ومزامنة Supabase" : "نشر في الموقع ومزامنة Supabase";
-        }
       }
     }
 
@@ -5980,264 +6186,156 @@
       const item = getAllCombinedProjects().find(p => p.id === id);
       if (!item || item.source === "github") return;
       pendingDeleteId = id;
-      const textEl = byId("delete-confirm-text");
-      if (textEl) {
-        textEl.textContent = `هل أنت متأكد أنك تريد حذف "${item.title}" من الموقع وقاعدة البيانات نهائياً؟`;
+      const txtEl = byId("delete-confirm-text");
+      if (txtEl) {
+        txtEl.textContent = `هل أنت متأكد أنك تريد حذف "${item.title}" نهائياً؟`;
       }
-      const box = byId("confirm-delete-backdrop");
-      if (box) box.classList.add("open");
+      const backdrop = byId("confirm-delete-backdrop");
+      if (backdrop) backdrop.classList.add("open");
     }
 
     function closeDeleteConfirm() {
       pendingDeleteId = null;
-      const box = byId("confirm-delete-backdrop");
-      if (box) box.classList.remove("open");
+      const backdrop = byId("confirm-delete-backdrop");
+      if (backdrop) backdrop.classList.remove("open");
     }
 
     async function confirmDeleteAction() {
       if (!isOwner() || !pendingDeleteId) return;
       const idToDelete = pendingDeleteId;
-      const item = getAllCombinedProjects().find(p => p.id === idToDelete);
+      const target = getAllCombinedProjects().find(p => p.id === idToDelete);
+      const remoteIdToDelete = target ? target.remoteId : null;
       closeDeleteConfirm();
 
-      await deleteProjectFromDB(idToDelete);
-      if (item && item.remoteId && typeof window.deleteProjectFromSupabase === "function") {
-        await window.deleteProjectFromSupabase(item.remoteId);
+      if (target) {
+        await deleteProjectFromDB(idToDelete);
+        supabaseRemoteProjects = supabaseRemoteProjects.filter(p => p.id !== idToDelete && p.remoteId !== remoteIdToDelete);
+        bookmarkedIds.delete(idToDelete);
+        try {
+          localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(Array.from(bookmarkedIds)));
+        } catch (e) {}
+        renderStats();
+        applyFilters();
+        renderAdminManageList();
+        renderAdminQuickKPIs();
+        if (remoteIdToDelete && typeof window.deleteProjectFromSupabase === "function") {
+          window.deleteProjectFromSupabase(remoteIdToDelete).catch(() => {});
+        }
+        pushNotification("تم الحذف نهائياً", `تمت إزالة "${target.title}".`, true, false, null, "حذف");
       }
-
-      renderStats();
-      applyFilters();
-      renderAdminManageList();
-      renderAdminQuickKPIs();
-      pushNotification("تم الحذف", item ? `تم حذف "${item.title}" نهائياً.` : "تم حذف العنصر.", true, false, null, "حذف");
     }
 
-    function serializeRichPayload(project) {
-      return RICH_PAYLOAD_PREFIX + JSON.stringify({
-        type: project.type,
-        version: project.version,
-        meta: project.meta || "",
-        offline: Boolean(project.offline),
-        shortDesc: project.shortDesc || "",
-        changelog: project.changelog || "",
-        features: Array.isArray(project.features) ? project.features : [],
-        coverImage: project.coverImage || "",
-        detailImages: Array.isArray(project.detailImages) ? project.detailImages : [],
-        downloads: Number(project.downloads || 0),
-        createdAt: Number(project.createdAt || Date.now()),
-        url: (project.url && !project.url.startsWith("blob:")) ? project.url : "#"
-      });
+    function shareOrCopyProject(id, copyOnly = false) {
+      const item = getAllCombinedProjects().find(p => p.id === id);
+      if (!item) return;
+      const shareUrl = item.url && !item.url.startsWith("blob:") && item.url !== "#" ? item.url : window.location.href;
+
+      if (!copyOnly && navigator.share) {
+        navigator.share({
+          title: `${item.title} | JadDev`,
+          text: item.shortDesc,
+          url: shareUrl
+        }).catch(() => {});
+        return;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          pushNotification("تم نسخ الرابط", `تم نسخ رابط "${item.title}" بنجاح.`, true, false, item.id, "مشاركة");
+        }).catch(() => {
+          fallbackCopyText(shareUrl);
+          pushNotification("تم نسخ الرابط", `تم نسخ رابط "${item.title}" بنجاح.`, true, false, item.id, "مشاركة");
+        });
+      } else {
+        fallbackCopyText(shareUrl);
+        pushNotification("تم نسخ الرابط", `تم نسخ رابط "${item.title}" بنجاح.`, true, false, item.id, "مشاركة");
+      }
+    }
+
+    function serializeRichPayload(projectData) {
+      const payload = {
+        type: projectData.type || "app",
+        version: projectData.version || "v1.0",
+        meta: projectData.meta || "APK",
+        offline: Boolean(projectData.offline),
+        shortDesc: projectData.shortDesc || "",
+        changelog: projectData.changelog || "",
+        features: Array.isArray(projectData.features) ? projectData.features : [],
+        coverImage: projectData.coverImage || "",
+        detailImages: Array.isArray(projectData.detailImages) ? projectData.detailImages : [],
+        downloads: Number(projectData.downloads || 0),
+        createdAt: Number(projectData.createdAt || Date.now())
+      };
+      return RICH_PAYLOAD_PREFIX + JSON.stringify(payload);
     }
 
     function parseSupabaseRow(row) {
-      const rawName = row.name || row.title || "مشروع";
       const rawDesc = row.description || "";
-      const rawUrl = sanitizeUrl(row.url || row.link || "#");
-      const rowUpdatedAt = row.updated_at ? new Date(row.updated_at).getTime() : (row.created_at ? new Date(row.created_at).getTime() : Date.now());
-
+      const rowUrl = sanitizeUrl(row.url || row.link || "#");
       if (typeof rawDesc === "string" && rawDesc.startsWith(RICH_PAYLOAD_PREFIX)) {
         try {
           const parsed = JSON.parse(rawDesc.slice(RICH_PAYLOAD_PREFIX.length));
-          const mergedUrl = sanitizeUrl(parsed.url || rawUrl);
           return normalizeProjectItem({
             id: "sb-" + row.id,
             remoteId: row.id,
             rawRowData: row,
-            createdAt: parsed.createdAt || rowUpdatedAt,
-            type: parsed.type === "website" ? "website" : "app",
-            title: rawName,
+            createdAt: parsed.createdAt || (row.created_at ? new Date(row.created_at).getTime() : Date.now()),
+            type: parsed.type || "app",
+            title: row.name || row.title || "مشروع JadDev",
             version: parsed.version || "v1.0",
-            meta: parsed.meta || "",
+            meta: parsed.meta || "APK",
             offline: Boolean(parsed.offline),
             shortDesc: parsed.shortDesc || "",
             changelog: parsed.changelog || "",
-            features: Array.isArray(parsed.features) ? parsed.features : [],
-            coverImage: parsed.coverImage || "",
+            features: Array.isArray(parsed.features) ? parsed.features : ["مجاني بالكامل"],
+            coverImage: parsed.coverImage || row.image_url || row.image || "",
             detailImages: Array.isArray(parsed.detailImages) ? parsed.detailImages : [],
             downloads: Number(parsed.downloads || 0),
-            url: mergedUrl
+            url: rowUrl
           });
-        } catch (e) {}
+        } catch (err) {}
       }
 
-      const isWeb = rawDesc.toLowerCase().includes("موقع") || rawDesc.toLowerCase().includes("website") || rawDesc.toLowerCase().includes("web");
+      const fallbackType = (rowUrl && rowUrl !== "#" && !rowUrl.toLowerCase().includes("mediafire") && !rowUrl.toLowerCase().endsWith(".apk"))
+        ? "website"
+        : "app";
+
       return normalizeProjectItem({
         id: "sb-" + row.id,
         remoteId: row.id,
         rawRowData: row,
-        createdAt: rowUpdatedAt,
-        type: isWeb ? "website" : "app",
-        title: rawName,
-        version: "v1.0",
-        meta: isWeb ? "Web" : "APK",
-        offline: !isWeb,
-        shortDesc: rawDesc || "مشروع منشور على منصة JadDev.",
-        changelog: "",
-        features: ["متاح للجميع", "مجاني بالكامل"],
-        coverImage: "",
-        detailImages: [],
-        downloads: 0,
-        url: rawUrl
+        createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+        type: row.type || fallbackType,
+        title: row.name || row.title || "مشروع JadDev",
+        version: row.version || "v1.0",
+        meta: row.meta || (fallbackType === "app" ? "APK" : "Web"),
+        offline: typeof row.offline === "boolean" ? row.offline : (fallbackType === "app"),
+        shortDesc: rawDesc || "أداة ومشروع مجاني من تطوير Jad Koudmani.",
+        changelog: row.changelog || "",
+        features: Array.isArray(row.features) ? row.features : ["مجاني بالكامل"],
+        coverImage: row.image_url || row.image || "",
+        detailImages: Array.isArray(row.detail_images) ? row.detail_images : [],
+        downloads: Number(row.downloads || 0),
+        url: rowUrl
       });
     }
 
-    async function initApp() {
+    (async function boot() {
+      if (localStorage.getItem(GLASS_MODE_KEY) === "crystal") {
+        document.body.classList.add("crystal-glass");
+      }
       updateNetworkBadge();
       registerServiceWorker();
-      hydrateInstantSnapshot();
-      renderStats();
-      applyFilters();
       updateNotifBadge();
-      syncAuthUI();
-
+      hydrateInstantSnapshot();
       await initDB();
       await loadProjectsFromDB();
-      renderStats();
-      applyFilters();
-      renderAdminQuickKPIs();
+      syncAuthUI();
 
+      // Fetch Cloud & GitHub asynchronously without blocking UI
+      loadCloudProjects(false);
       syncGitHubNow(false);
-    }
-
-    initApp();
-  </script>
-
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-    const SUPABASE_URL = "https://uudtcckpxqqbuhqswpuv.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jZmd2bGpncWNvYWl0enJzenJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyNzQzMzQsImV4cCI6MjExMDg1MDMzNH0.U1oAKjJwxAERDivVPUO02_tVobaoJr5hcXVOKkFVLQE;
-    const TABLE_NAME = "projects";
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    function setSupabasePillStatus(state, labelText) {
-      const pill = document.getElementById("supabase-status-pill");
-      if (!pill) return;
-      pill.classList.remove("supabase-pill-ok", "supabase-pill-err");
-      if (state === "ok") pill.classList.add("supabase-pill-ok");
-      if (state === "err") pill.classList.add("supabase-pill-err");
-      pill.textContent = labelText;
-    }
-
-    async function loadCloudProjects() {
-      try {
-        const { data, error } = await supabase
-          .from(TABLE_NAME)
-          .select("*")
-          .order("id", { ascending: false });
-
-        if (error) {
-          setSupabasePillStatus("err", "Supabase: خطأ اتصال");
-          return;
-        }
-
-        const rows = Array.isArray(data) ? data : [];
-        try {
-          localStorage.setItem("jaddev_cloud_snapshot_v20", JSON.stringify(rows));
-        } catch (e) {}
-
-        const previousIds = new Set(supabaseRemoteProjects.map(p => p.id));
-        const mapped = rows.map(parseSupabaseRow);
-
-        if (hasReceivedInitialSupabaseSync) {
-          const newlyAdded = mapped.filter(m => !previousIds.has(m.id));
-          if (newlyAdded.length > 0 && !isOwner()) {
-            const latest = newlyAdded[0];
-            pushNotification(
-              "مشروع جديد على JadDev",
-              `تمت إضافة "${latest.title}" (${latest.version})`,
-              true,
-              true,
-              latest.id,
-              "تحديث مباشر"
-            );
-          }
-        }
-
-        supabaseRemoteProjects = mapped;
-        hasReceivedInitialSupabaseSync = true;
-        setSupabasePillStatus("ok", `Supabase: متصل (${rows.length})`);
-        renderStats();
-        applyFilters();
-        renderAdminQuickKPIs();
-        if (isOwner() && document.getElementById("manage-modal-backdrop")?.classList.contains("open")) {
-          renderAdminManageList();
-        }
-      } catch (err) {
-        setSupabasePillStatus("err", "Supabase: تعذّر المزامنة");
-      }
-    }
-
-    window.saveProjectToSupabase = async function (projectData, existingRemoteId = null) {
-      const payload = {
-        name: projectData.title,
-        description: serializeRichPayload(projectData),
-        url: (projectData.url && !projectData.url.startsWith("blob:")) ? projectData.url : "#"
-      };
-
-      if (existingRemoteId) {
-        const { error } = await supabase
-          .from(TABLE_NAME)
-          .update(payload)
-          .eq("id", existingRemoteId);
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from(TABLE_NAME)
-          .insert([payload])
-          .select();
-        if (error) throw error;
-        if (Array.isArray(data) && data[0]) {
-          projectData.remoteId = data[0].id;
-        }
-      }
-
-      await loadCloudProjects();
-    };
-
-    window.deleteProjectFromSupabase = async function (remoteId) {
-      if (!remoteId) return;
-      const { error } = await supabase
-        .from(TABLE_NAME)
-        .delete()
-        .eq("id", remoteId);
-      if (!error) {
-        await loadCloudProjects();
-      }
-    };
-
-    window.incrementSupabaseDownloads = async function (remoteId, rawRowData) {
-      if (!remoteId || !rawRowData) return;
-      try {
-        const desc = rawRowData.description || "";
-        if (typeof desc === "string" && desc.startsWith(RICH_PAYLOAD_PREFIX)) {
-          const parsed = JSON.parse(desc.slice(RICH_PAYLOAD_PREFIX.length));
-          parsed.downloads = (Number(parsed.downloads) || 0) + 1;
-          await supabase
-            .from(TABLE_NAME)
-            .update({ description: RICH_PAYLOAD_PREFIX + JSON.stringify(parsed) })
-            .eq("id", remoteId);
-        }
-      } catch (e) {}
-    };
-
-    window.syncSupabaseNow = async function () {
-      setSupabasePillStatus("", "Supabase: جاري المزامنة...");
-      await loadCloudProjects();
-      pushNotification("مزامنة Supabase", "تم تحديث قائمة المشاريع والروابط بنجاح.", true, false, null, "Supabase");
-    };
-
-    window.refreshJadDevSupabase = loadCloudProjects;
-
-    loadCloudProjects();
-
-    supabase
-      .channel("jaddev-realtime-projects")
-      .on("postgres_changes", { event: "*", schema: "public", table: TABLE_NAME }, () => {
-        loadCloudProjects();
-      })
-      .subscribe();
+    })();
   </script>
 </body>
 </html>
