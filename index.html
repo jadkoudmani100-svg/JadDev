@@ -187,14 +187,6 @@
       40%, 80% { transform: translate3d(6px, 0, 0); }
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .spin {
-      animation: spin 0.9s linear infinite;
-    }
-
     .animate-enter {
       animation: cardRise 0.35s var(--spring) both;
     }
@@ -607,12 +599,6 @@
       border-color: rgba(251, 191, 36, 0.5);
       background: rgba(251, 191, 36, 0.15);
       color: #fde68a;
-    }
-
-    .supabase-pill-err {
-      border-color: rgba(244, 63, 94, 0.5);
-      background: rgba(244, 63, 94, 0.16);
-      color: #fda4af;
     }
 
     .admin-command-tabs {
@@ -3616,7 +3602,7 @@
 
     const SUPABASE_URL = "https://uudtcckpxqqbuhqswpuv.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1ZHRjY2tweHFxYnVocXN3cHV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTIxODQsImV4cCI6MjA4ODIyODE4NH0.U1oAKjJwxAERDivVPU002_tVobaoJr5hcXVOKkFVLQE";
-    const TABLE_NAME = "projects";
+    const TABLE_NAME = "Projects";
     const SUPABASE_TIMEOUT_MS = 5000;
 
     const USER_SESSION_KEY = "jaddev_user_session_v20";
@@ -3627,15 +3613,25 @@
     const GITHUB_CACHE_KEY = "jaddev_github_repos_v20";
     const SYNC_OUTBOX_KEY = "jaddev_sync_outbox_v20";
     const GLASS_MODE_KEY = "jaddev_glass_mode_v20";
+    const FALLBACK_PROJECTS_KEY = "jaddev_fallback_projects_v20";
     const DB_NAME = "JadDevStorageDB_v20";
     const STORE_NAME = "projects";
     const RICH_PAYLOAD_PREFIX = "JADDEV_JSON::";
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-    let currentUser = JSON.parse(localStorage.getItem(USER_SESSION_KEY) || "null");
-    let profileMetaMap = JSON.parse(localStorage.getItem(PROFILE_META_KEY) || "{}");
-    let bookmarkedIds = new Set(JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || "[]"));
-    let syncOutbox = JSON.parse(localStorage.getItem(SYNC_OUTBOX_KEY) || "[]");
+    function safeJsonParse(raw, fallback) {
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed ?? fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    let currentUser = safeJsonParse(localStorage.getItem(USER_SESSION_KEY), null);
+    let profileMetaMap = safeJsonParse(localStorage.getItem(PROFILE_META_KEY), {});
+    let bookmarkedIds = new Set(safeJsonParse(localStorage.getItem(BOOKMARKS_KEY), []));
+    let syncOutbox = safeJsonParse(localStorage.getItem(SYNC_OUTBOX_KEY), []);
     let localProjectsList = [];
     let supabaseRemoteProjects = [];
     let githubSyncedProjects = [];
@@ -3649,7 +3645,7 @@
     let authMode = "login";
     let selectedSupportAmount = "";
     let isCloudSyncing = false;
-    let notifications = JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || "null") || [
+    let notifications = safeJsonParse(localStorage.getItem(NOTIF_STORAGE_KEY), null) || [
       {
         id: "welcome-1",
         source: BRAND_NAME,
@@ -3680,7 +3676,9 @@
     function toggleGlassMode() {
       document.body.classList.toggle("crystal-glass");
       const isCrystal = document.body.classList.contains("crystal-glass");
-      localStorage.setItem(GLASS_MODE_KEY, isCrystal ? "crystal" : "obsidian");
+      try {
+        localStorage.setItem(GLASS_MODE_KEY, isCrystal ? "crystal" : "obsidian");
+      } catch (e) {}
       pushNotification(
         "تم تغيير نمط الواجهة",
         isCrystal ? "تم تفعيل وضع الزجاج الشفاف (Crystal Glass Mode)." : "تم تفعيل وضع الزجاج الداكن (Obsidian Glass).",
@@ -3731,7 +3729,7 @@
         : "Kaza Wallet • دعم مرن";
     }
 
-    function selectSupportTier(amt, btn) {
+    function selectSupportTier(amt) {
       const alreadySelected = selectedSupportAmount === amt;
       selectedSupportAmount = alreadySelected ? "" : amt;
       const customInp = byId("support-custom-amount");
@@ -3900,16 +3898,17 @@
     function getAllCombinedProjects() {
       const primaryList = supabaseRemoteProjects.length > 0 ? supabaseRemoteProjects : localProjectsList;
       const localByTitle = new Map(
-        localProjectsList.map(p => [String(p.title || "").trim().toLowerCase(), p])
+        localProjectsList.map(p => [normalizeArabic(p.title || ""), p])
       );
 
       const mergedPrimary = primaryList.map(item => {
-        const localMatch = localByTitle.get(String(item.title || "").trim().toLowerCase());
+        const localMatch = localByTitle.get(normalizeArabic(item.title || ""));
         if (!localMatch) return item;
         return {
           ...item,
           coverImage: item.coverImage || localMatch.coverImage || "",
           detailImages: (item.detailImages && item.detailImages.length) ? item.detailImages : (localMatch.detailImages || []),
+          downloads: Math.max(Number(item.downloads || 0), Number(localMatch.downloads || 0)),
           fileBlob: localMatch.fileBlob || null,
           fileName: localMatch.fileName || ""
         };
@@ -3977,7 +3976,11 @@
         `;
         const swBlob = new Blob([swCode], { type: "application/javascript" });
         const swUrl = URL.createObjectURL(swBlob);
-        navigator.serviceWorker.register(swUrl).catch(() => {});
+        navigator.serviceWorker.register(swUrl).then(() => {
+          setTimeout(() => {
+            try { URL.revokeObjectURL(swUrl); } catch (e) {}
+          }, 10000);
+        }).catch(() => {});
       }
     }
 
@@ -4069,25 +4072,21 @@
     }
 
     function hydrateInstantSnapshot() {
-      try {
-        const cachedCloud = JSON.parse(localStorage.getItem(CLOUD_SNAPSHOT_KEY) || "[]");
-        if (Array.isArray(cachedCloud) && cachedCloud.length > 0) {
-          supabaseRemoteProjects = cachedCloud.map(parseSupabaseRow);
-        }
-      } catch (e) {}
+      const cachedCloud = safeJsonParse(localStorage.getItem(CLOUD_SNAPSHOT_KEY), []);
+      if (Array.isArray(cachedCloud) && cachedCloud.length > 0) {
+        supabaseRemoteProjects = cachedCloud.map(parseSupabaseRow);
+      }
 
-      try {
-        const cachedGh = JSON.parse(localStorage.getItem(GITHUB_CACHE_KEY) || "[]");
-        if (Array.isArray(cachedGh) && cachedGh.length > 0) {
-          githubSyncedProjects = cachedGh.map(normalizeProjectItem);
-        }
-      } catch (e) {}
+      const cachedGh = safeJsonParse(localStorage.getItem(GITHUB_CACHE_KEY), []);
+      if (Array.isArray(cachedGh) && cachedGh.length > 0) {
+        githubSyncedProjects = cachedGh.map(normalizeProjectItem);
+      }
     }
 
     function loadProjectsFromDB() {
       return new Promise((resolve) => {
         if (!dbInstance) {
-          const raw = JSON.parse(localStorage.getItem("jaddev_fallback_projects_v20") || "[]");
+          const raw = safeJsonParse(localStorage.getItem(FALLBACK_PROJECTS_KEY), []);
           localProjectsList = Array.isArray(raw) ? raw.map(normalizeProjectItem) : [];
           resolve();
           return;
@@ -4115,7 +4114,7 @@
           else localProjectsList.unshift(displayCopy);
           try {
             localStorage.setItem(
-              "jaddev_fallback_projects_v20",
+              FALLBACK_PROJECTS_KEY,
               JSON.stringify(localProjectsList.map(({ fileBlob: _b, url: _u, ...r }) => r))
             );
           } catch (e) {}
@@ -4156,7 +4155,12 @@
         }
         localProjectsList = localProjectsList.filter(p => p.id !== id);
         if (!dbInstance) {
-          localStorage.setItem("jaddev_fallback_projects_v20", JSON.stringify(localProjectsList));
+          try {
+            localStorage.setItem(
+              FALLBACK_PROJECTS_KEY,
+              JSON.stringify(localProjectsList.map(({ fileBlob: _b, url: _u, ...r }) => r))
+            );
+          } catch (e) {}
           resolve();
           return;
         }
@@ -4208,10 +4212,9 @@
     function setSupabasePillStatus(state, labelText) {
       const pill = byId("supabase-status-pill");
       if (!pill) return;
-      pill.classList.remove("supabase-pill-ok", "supabase-pill-warn", "supabase-pill-err");
+      pill.classList.remove("supabase-pill-ok", "supabase-pill-warn");
       if (state === "ok") pill.classList.add("supabase-pill-ok");
       if (state === "warn") pill.classList.add("supabase-pill-warn");
-      if (state === "err") pill.classList.add("supabase-pill-err");
       pill.textContent = labelText;
     }
 
@@ -4252,17 +4255,7 @@
       try {
         await flushSupabaseOutbox();
 
-        let rows;
-        try {
-          rows = await supabaseRest(`${TABLE_NAME}?select=*&order=id.desc`);
-        } catch (firstErr) {
-          if (String(firstErr.message).includes("404")) {
-            rows = await supabaseRest(`Projects?select=*&order=id.desc`);
-          } else {
-            throw firstErr;
-          }
-        }
-
+        const rows = await supabaseRest(`${TABLE_NAME}?select=*&order=id.desc`);
         const pingMs = Math.round(performance.now() - t0);
         const safeRows = Array.isArray(rows) ? rows : [];
         try {
@@ -4370,18 +4363,17 @@
       }
     };
 
-    window.incrementSupabaseDownloads = async function (remoteId, rawRowData) {
-      if (!remoteId || !rawRowData) return;
+    window.incrementSupabaseDownloads = async function (item) {
+      if (!item || !item.remoteId) return;
       try {
-        const desc = rawRowData.description || "";
-        if (typeof desc === "string" && desc.startsWith(RICH_PAYLOAD_PREFIX)) {
-          const parsed = JSON.parse(desc.slice(RICH_PAYLOAD_PREFIX.length));
-          parsed.downloads = (Number(parsed.downloads) || 0) + 1;
-          await supabaseRest(`${TABLE_NAME}?id=eq.${remoteId}`, {
-            method: "PATCH",
-            body: JSON.stringify({ description: RICH_PAYLOAD_PREFIX + JSON.stringify(parsed) })
-          });
-        }
+        const updatedPayload = serializeRichPayload({
+          ...item,
+          downloads: Number(item.downloads) || 0
+        });
+        await supabaseRest(`${TABLE_NAME}?id=eq.${item.remoteId}`, {
+          method: "PATCH",
+          body: JSON.stringify({ description: updatedPayload })
+        });
       } catch (e) {}
     };
 
@@ -4500,8 +4492,15 @@
     function trackProjectAction(item) {
       if (!item) return;
       item.downloads = (Number(item.downloads) || 0) + 1;
+
+      const localMatch = localProjectsList.find(p => p.id === item.id);
+      if (localMatch) {
+        localMatch.downloads = item.downloads;
+        upsertProjectInDB(localMatch).catch(() => {});
+      }
+
       if (item.remoteId && typeof window.incrementSupabaseDownloads === "function") {
-        window.incrementSupabaseDownloads(item.remoteId, item.rawRowData).catch(() => {});
+        window.incrementSupabaseDownloads(item).catch(() => {});
       }
       renderStats();
       renderAdminQuickKPIs();
@@ -4629,8 +4628,6 @@
           const nextOffset = Math.min(totalBytes, offset + chunkSize);
           const bytesReadNow = nextOffset - offset;
           const speed = bytesReadNow / dt;
-
-          void item.fileBlob.slice(offset, nextOffset).arrayBuffer();
 
           offset = nextOffset;
           lastTime = now;
@@ -4977,7 +4974,7 @@
           name: "Jad Koudmani",
           role: "owner"
         };
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(currentUser));
+        try { localStorage.setItem(USER_SESSION_KEY, JSON.stringify(currentUser)); } catch (e) {}
         if (nameInput) nameInput.value = "";
         if (emailInput) emailInput.value = "";
         if (passInput) passInput.value = "";
@@ -4991,7 +4988,7 @@
           name: displayName,
           role: "user"
         };
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(currentUser));
+        try { localStorage.setItem(USER_SESSION_KEY, JSON.stringify(currentUser)); } catch (e) {}
         if (nameInput) nameInput.value = "";
         if (emailInput) emailInput.value = "";
         if (passInput) passInput.value = "";
@@ -5003,7 +5000,7 @@
 
     function logoutUser() {
       currentUser = null;
-      localStorage.removeItem(USER_SESSION_KEY);
+      try { localStorage.removeItem(USER_SESSION_KEY); } catch (e) {}
       closeAccountModal();
       closeManageModal();
       syncAuthUI();
@@ -5453,15 +5450,19 @@
       if (!isOwner()) return;
       const exportData = getAllCombinedProjects()
         .filter(p => p.source !== "github")
-        .map(({ fileBlob, url, rawRowData, ...rest }) => ({
+        .map(({ fileBlob: _fb, url, rawRowData: _rr, ...rest }) => ({
           ...rest,
           url: url && url.startsWith("blob:") ? "#" : (url || "#")
         }));
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const href = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
+      link.href = href;
       link.download = "jaddev-projects-backup.json";
       link.click();
+      setTimeout(() => {
+        try { URL.revokeObjectURL(href); } catch (e) {}
+      }, 10000);
       pushNotification("تصدير ناجح", "تم تحميل ملف النسخة الاحتياطية JSON.", true, false, null, "النظام");
     }
 
@@ -5802,7 +5803,7 @@
               ? `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`
               : `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`);
 
-        const ownerBtns = (ownerActive && item.source !== "github")
+        const ownerCardActions = (ownerActive && item.source !== "github")
           ? `<button type="button" class="btn btn-edit" onclick="openEditProjectModal('${safeId}')">تعديل</button>
              <button type="button" class="btn btn-del" onclick="askDeleteConfirm('${safeId}')">حذف</button>`
           : "";
@@ -5822,34 +5823,29 @@
               </div>
               <div class="card-title-row">
                 <h3>${safeTitle}</h3>
-                <button type="button" class="fav-btn ${isSaved ? "saved" : ""}" onclick="toggleBookmark('${safeId}')" title="${isSaved ? "إزالة من المفضلة" : "حفظ في المفضلة"}" aria-label="حفظ في المفضلة">
+                <button type="button" class="fav-btn ${isSaved ? "saved" : ""}" onclick="toggleBookmark('${safeId}')" aria-label="حفظ في المفضلة">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="${isSaved ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2.2">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                   </svg>
                 </button>
               </div>
               <p>${escapeHTML(item.shortDesc)}</p>
-              ${linkStripHtml}
               <div class="tags">
-                ${(item.features || []).slice(0, 3).map(f => `<span class="tag">${escapeHTML(f)}</span>`).join("")}
+                ${(item.features || []).map(f => `<span class="tag">${escapeHTML(f)}</span>`).join("")}
               </div>
-            </div>
-            <div>
+              ${linkStripHtml}
               ${dlProgressHtml}
-              <div class="card-actions">
-                ${primaryActionHtml}
-                <button type="button" class="btn btn-ghost" onclick="openModal('${safeId}')">الميزات</button>
-                <button type="button" class="btn btn-copy" title="مشاركة / نسخ" onclick="shareOrCopyProject('${safeId}')">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <circle cx="18" cy="5" r="3"></circle>
-                    <circle cx="6" cy="12" r="3"></circle>
-                    <circle cx="18" cy="19" r="3"></circle>
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                  </svg>
-                </button>
-                ${ownerBtns}
-              </div>
+            </div>
+            <div class="card-actions">
+              ${primaryActionHtml}
+              <button type="button" class="btn btn-ghost" onclick="openModal('${safeId}')">الميزات</button>
+              <button type="button" class="btn btn-copy" title="مشاركة أو نسخ الرابط" onclick="shareOrCopyProject('${safeId}', false)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+              ${ownerCardActions}
             </div>
           </article>
         `;
@@ -5860,37 +5856,43 @@
       const item = getAllCombinedProjects().find(p => p.id === id);
       if (!item) return;
 
-      const mTitle = byId("modal-title");
-      const mDesc = byId("modal-desc");
-      if (mTitle) mTitle.textContent = item.title;
-      if (mDesc) mDesc.textContent = item.shortDesc;
-
+      const titleEl = byId("modal-title");
+      const descEl = byId("modal-desc");
       const badgesEl = byId("modal-badges");
+      const linkBox = byId("modal-direct-link-box");
+      const changelogBox = byId("modal-changelog-box");
+      const featList = byId("modal-features");
+      const gallerySec = byId("modal-gallery-section");
+      const cta = byId("modal-cta");
+
+      if (titleEl) titleEl.textContent = item.title;
+      if (descEl) descEl.textContent = item.shortDesc;
+
       if (badgesEl) {
         badgesEl.innerHTML = `
-          ${item.offline ? `<span class="badge badge-offline">Offline Ready</span>` : `<span class="badge badge-online">Online</span>`}
+          ${isRecentProject(item) ? `<span class="badge badge-new">جديد</span>` : ""}
+          <span class="badge ${item.offline ? "badge-offline" : "badge-online"}">${item.offline ? "Offline" : "Online"}</span>
           <span class="badge badge-meta mono">${escapeHTML(item.version)}</span>
-          <span class="badge badge-downloads mono">${item.downloads || 0} تفاعل</span>
+          <span class="badge badge-downloads mono">${Number(item.downloads) || 0} تفاعل</span>
         `;
       }
 
-      const directLinkBox = byId("modal-direct-link-box");
       const safeUrl = sanitizeUrl(item.url);
       const visibleLink = formatDisplayUrl(item.url);
-      if (directLinkBox) {
+      if (linkBox) {
         if (visibleLink) {
-          directLinkBox.innerHTML = `
-            <span class="modal-section-label">الرابط المباشر للبرنامج / الموقع</span>
+          linkBox.innerHTML = `
+            <span class="modal-section-label">الرابط المباشر</span>
             <div class="card-link-strip" style="margin-bottom:0;">
               <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleWebsiteVisit('${escapeHTML(item.id)}')" class="card-link-anchor mono">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="flex-shrink:0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                 </svg>
-                <span>${escapeHTML(safeUrl)}</span>
+                <span>${escapeHTML(visibleLink)}</span>
               </a>
               <button type="button" class="card-link-copy-mini" title="نسخ الرابط" onclick="shareOrCopyProject('${escapeHTML(item.id)}', true)">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
@@ -5898,91 +5900,84 @@
             </div>
           `;
         } else {
-          directLinkBox.innerHTML = "";
+          linkBox.innerHTML = "";
         }
       }
 
-      const changelogBox = byId("modal-changelog-box");
       if (changelogBox) {
         changelogBox.innerHTML = item.changelog
-          ? `<div style="padding:10px 13px; border-radius:16px; background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.25); font-size:0.83rem; color:#a5f3fc; margin-bottom:12px;">
-               <strong>ما الجديد:</strong> ${escapeHTML(item.changelog)}
+          ? `<div style="padding:10px 14px; border-radius:18px; background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.25); margin-bottom:14px;">
+               <span class="modal-section-label" style="margin-bottom:3px;">ما الجديد في هذا الإصدار</span>
+               <p style="font-size:0.84rem; color:#e2e8f0; margin:0;">${escapeHTML(item.changelog)}</p>
              </div>`
           : "";
       }
 
-      const mFeatures = byId("modal-features");
-      if (mFeatures) {
-        mFeatures.innerHTML = (item.features || []).map(f => `
+      if (featList) {
+        featList.innerHTML = (item.features || []).map(f => `
           <li>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            ${escapeHTML(f)}
+            <span>${escapeHTML(f)}</span>
           </li>
         `).join("");
       }
 
-      const gallerySec = byId("modal-gallery-section");
-      const detailImgs = Array.isArray(item.detailImages) ? item.detailImages : [];
-      const totalSlides = detailImgs.length;
-
+      const sliderImages = Array.isArray(item.detailImages) ? item.detailImages.filter(Boolean) : [];
       if (gallerySec) {
-        if (totalSlides > 0) {
-          const slidesHtml = detailImgs.map((src, i) => `
-            <div class="insta-slide" onclick="openLightbox('${src}')">
-              <img src="${src}" alt="صورة إضافية ${i + 1}" />
-            </div>
-          `).join("");
-
-          const navControlsHtml = totalSlides > 1
-            ? `<div class="insta-nav-row">
-                 <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(-1, ${totalSlides})" aria-label="السابق">
-                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                     <polyline points="9 18 15 12 9 6"></polyline>
-                   </svg>
-                 </button>
-                 <div class="insta-dots" id="insta-dots">
-                   ${detailImgs.map((_, i) => `
-                     <button type="button" class="insta-dot ${i === 0 ? "active" : ""}" onclick="goToCarouselSlide(${i}, ${totalSlides})" aria-label="صورة ${i + 1}"></button>
-                   `).join("")}
-                 </div>
-                 <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(1, ${totalSlides})" aria-label="التالي">
-                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                     <polyline points="15 18 9 12 15 6"></polyline>
-                   </svg>
-                 </button>
-               </div>`
-            : "";
-
+        if (sliderImages.length > 0) {
           gallerySec.innerHTML = `
-            <span class="modal-section-label">صور إضافية للتوضيح (${totalSlides}) — اضغط للتكبير</span>
+            <span class="modal-section-label">صور الشرح (${sliderImages.length}) — اسحب للتقليب أو اضغط للتكبير</span>
             <div class="insta-carousel">
-              <div class="insta-counter-pill mono" id="insta-counter-pill">1 / ${totalSlides}</div>
-              <div class="insta-track" id="insta-carousel-track">${slidesHtml}</div>
-              ${navControlsHtml}
+              <span class="insta-counter-pill mono" id="insta-counter-pill">1 / ${sliderImages.length}</span>
+              <div class="insta-track" id="insta-carousel-track">
+                ${sliderImages.map((src, i) => `
+                  <div class="insta-slide" onclick="openLightbox('${src}')">
+                    <img src="${src}" alt="شرح ${i + 1}" />
+                  </div>
+                `).join("")}
+              </div>
+              ${sliderImages.length > 1 ? `
+                <div class="insta-nav-row">
+                  <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(-1, ${sliderImages.length})" aria-label="السابق">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                  <div class="insta-dots" id="insta-dots">
+                    ${sliderImages.map((_, i) => `<button type="button" class="insta-dot ${i === 0 ? "active" : ""}" onclick="goToCarouselSlide(${i}, ${sliderImages.length})" aria-label="صورة ${i + 1}"></button>`).join("")}
+                  </div>
+                  <button type="button" class="insta-arrow-btn" onclick="stepCarouselSlide(1, ${sliderImages.length})" aria-label="التالي">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              ` : ""}
             </div>
           `;
-          setTimeout(() => initCarouselListeners(totalSlides), 30);
+          initCarouselListeners(sliderImages.length);
         } else {
           gallerySec.innerHTML = "";
         }
       }
 
-      const ownerControls = (isOwner() && item.source !== "github")
-        ? `<button type="button" class="btn btn-edit" onclick="closeModal(); openEditProjectModal('${escapeHTML(item.id)}')">تعديل</button>
-           <button type="button" class="btn btn-del" onclick="closeModal(); askDeleteConfirm('${escapeHTML(item.id)}')">حذف</button>`
-        : "";
+      if (cta) {
+        const actionBtn = item.type === "app"
+          ? `<button type="button" class="btn btn-offline" onclick="closeModal(); startAppDownload('${escapeHTML(item.id)}');">تحميل التطبيق</button>`
+          : `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleWebsiteVisit('${escapeHTML(item.id)}')" class="btn btn-primary">زيارة الموقع</a>`;
 
-      const primaryModalCta = item.type === "app"
-        ? `<button type="button" class="btn btn-offline" onclick="closeModal(); startAppDownload('${escapeHTML(item.id)}')">تحميل التطبيق الآن</button>`
-        : `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleWebsiteVisit('${escapeHTML(item.id)}')" class="btn btn-primary">زيارة الموقع</a>`;
+        const adminBtns = (isOwner() && item.source !== "github")
+          ? `<button type="button" class="btn btn-edit" onclick="closeModal(); openEditProjectModal('${escapeHTML(item.id)}');">تعديل</button>
+             <button type="button" class="btn btn-del" onclick="closeModal(); askDeleteConfirm('${escapeHTML(item.id)}');">حذف</button>`
+          : "";
 
-      const mCta = byId("modal-cta");
-      if (mCta) {
-        mCta.innerHTML = `
-          ${primaryModalCta}
-          ${ownerControls}
+        cta.innerHTML = `
+          ${actionBtn}
+          <button type="button" class="btn btn-ghost" onclick="shareOrCopyProject('${escapeHTML(item.id)}', false)">مشاركة / نسخ الرابط</button>
+          ${adminBtns}
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">إغلاق</button>
         `;
       }
 
@@ -5995,25 +5990,69 @@
       if (backdrop) backdrop.classList.remove("open");
     }
 
-    function openAddModal() {
-      if (!isOwner()) return;
+    function shareOrCopyProject(id, copyLinkOnly = false) {
+      const item = getAllCombinedProjects().find(p => p.id === id);
+      if (!item) return;
+      const safeUrl = sanitizeUrl(item.url);
+      const hasRealUrl = safeUrl && safeUrl !== "#" && !safeUrl.startsWith("blob:");
+      const shareUrl = hasRealUrl ? safeUrl : window.location.href;
+      const shareText = copyLinkOnly
+        ? shareUrl
+        : `${item.title} (${item.version}) — ${item.shortDesc}\n${shareUrl}`;
+
+      if (!copyLinkOnly && navigator.share && hasRealUrl) {
+        navigator.share({
+          title: item.title,
+          text: `${item.title} (${item.version}) — ${item.shortDesc}`,
+          url: safeUrl
+        }).catch(() => {});
+        return;
+      }
+
+      const doneMsg = copyLinkOnly && hasRealUrl
+        ? `تم نسخ الرابط: ${safeUrl}`
+        : `تم نسخ رابط ومعلومات "${item.title}".`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).then(() => {
+          pushNotification("تم النسخ", doneMsg, true, false, item.id, "مشاركة");
+        }).catch(() => {
+          fallbackCopyText(shareText);
+          pushNotification("تم النسخ", doneMsg, true, false, item.id, "مشاركة");
+        });
+      } else {
+        fallbackCopyText(shareText);
+        pushNotification("تم النسخ", doneMsg, true, false, item.id, "مشاركة");
+      }
+    }
+
+    function resetProjectFormDraft() {
       editingProjectId = null;
-      const mTitle = byId("add-modal-title");
-      const sBtn = byId("save-proj-btn");
-      const fEl = byId("add-form");
-      if (mTitle) mTitle.textContent = "إضافة برنامج أو موقع";
-      if (sBtn) sBtn.textContent = "نشر في الموقع ومزامنة Supabase";
-      if (fEl) fEl.reset();
+      const titleEl = byId("add-modal-title");
+      const saveBtn = byId("save-proj-btn");
+      const form = byId("add-form");
+      if (titleEl) titleEl.textContent = "إضافة برنامج أو موقع";
+      if (saveBtn) saveBtn.textContent = "نشر في الموقع ومزامنة Supabase";
+      if (form) form.reset();
+
       draftFeatures = [];
-      renderDraftFeatures();
-      clearCoverImage();
-      clearDetailImages();
+      pickedCoverImage = "";
+      pickedDetailImages = [];
       pickedFileBlob = null;
       pickedFileName = "";
       pickedFileSize = "";
-      const fLbl = byId("file-label-text");
-      if (fLbl) fLbl.textContent = "اضغط لاختيار ملف APK أو HTML محلي";
+
+      const fileLbl = byId("file-label-text");
+      if (fileLbl) fileLbl.textContent = "اضغط لاختيار ملف APK أو HTML محلي";
+      renderDraftFeatures();
+      renderCoverPreview();
+      renderDetailImagesPreview();
       toggleProjectTypeFields();
+    }
+
+    function openAddModal() {
+      if (!isOwner()) return;
+      resetProjectFormDraft();
       const backdrop = byId("add-modal-backdrop");
       if (backdrop) backdrop.classList.add("open");
     }
@@ -6023,37 +6062,38 @@
       const item = getAllCombinedProjects().find(p => p.id === id);
       if (!item || item.source === "github") return;
 
-      closeManageModal();
+      resetProjectFormDraft();
       editingProjectId = item.id;
-      const mTitle = byId("add-modal-title");
-      const sBtn = byId("save-proj-btn");
-      if (mTitle) mTitle.textContent = "تعديل المشروع ومزامنة Supabase";
-      if (sBtn) sBtn.textContent = "حفظ التعديلات في السحابة";
+      const titleEl = byId("add-modal-title");
+      const saveBtn = byId("save-proj-btn");
+      if (titleEl) titleEl.textContent = `تعديل: ${item.title}`;
+      if (saveBtn) saveBtn.textContent = "حفظ التعديلات ومزامنة Supabase";
 
-      byId("proj-type").value = item.type;
-      byId("proj-version").value = item.version || "";
-      byId("proj-title").value = item.title || "";
-      byId("proj-url").value = (item.url && !item.url.startsWith("blob:") && item.url !== "#") ? item.url : "";
-      byId("proj-desc").value = item.shortDesc || "";
-      byId("proj-changelog").value = item.changelog || "";
-      byId("proj-offline").checked = Boolean(item.offline);
+      if (byId("proj-type")) byId("proj-type").value = item.type || "app";
+      if (byId("proj-version")) byId("proj-version").value = item.version || "";
+      if (byId("proj-title")) byId("proj-title").value = item.title || "";
+      const cleanUrl = (item.url && !item.url.startsWith("blob:") && item.url !== "#") ? item.url : "";
+      if (byId("proj-url")) byId("proj-url").value = cleanUrl;
+      if (byId("proj-desc")) byId("proj-desc").value = item.shortDesc || "";
+      if (byId("proj-changelog")) byId("proj-changelog").value = item.changelog || "";
+      if (byId("proj-offline")) byId("proj-offline").checked = Boolean(item.offline);
 
-      draftFeatures = [...(item.features || [])];
-      renderDraftFeatures();
-
+      draftFeatures = Array.isArray(item.features) ? [...item.features] : [];
       pickedCoverImage = item.coverImage || "";
-      renderCoverPreview();
-
       pickedDetailImages = Array.isArray(item.detailImages) ? [...item.detailImages] : [];
-      renderDetailImagesPreview();
-
       pickedFileBlob = item.fileBlob || null;
       pickedFileName = item.fileName || "";
-      pickedFileSize = item.meta || "";
-      const fLbl = byId("file-label-text");
-      if (fLbl) fLbl.textContent = pickedFileName ? `الملف الحالي: ${pickedFileName}` : "اضغط لاختيار ملف APK أو HTML محلي";
 
+      const fileLbl = byId("file-label-text");
+      if (fileLbl && pickedFileName) {
+        fileLbl.textContent = `ملف مرفق حالياً: ${pickedFileName}`;
+      }
+
+      renderDraftFeatures();
+      renderCoverPreview();
+      renderDetailImagesPreview();
       toggleProjectTypeFields();
+
       const backdrop = byId("add-modal-backdrop");
       if (backdrop) backdrop.classList.add("open");
     }
@@ -6064,21 +6104,20 @@
     }
 
     function toggleProjectTypeFields() {
-      const typeEl = byId("proj-type");
-      const appFieldsEl = byId("app-only-fields");
-      const labelEl = byId("url-label");
-      const urlInputEl = byId("proj-url");
-      if (!typeEl) return;
+      const typeSelect = byId("proj-type");
+      const appOnly = byId("app-only-fields");
+      const urlLabel = byId("url-label");
+      const urlInput = byId("proj-url");
+      if (!typeSelect) return;
 
-      const isApp = typeEl.value === "app";
-      if (appFieldsEl) appFieldsEl.style.display = isApp ? "block" : "none";
-      if (labelEl) {
-        labelEl.textContent = isApp
-          ? "الرابط المباشر للتحميل (MediaFire / APK) — سيظهر بوضوح في البطاقة"
-          : "رابط الموقع (URL) — سيظهر بوضوح في البطاقة";
-      }
-      if (urlInputEl) {
-        urlInputEl.placeholder = isApp ? "https://www.mediafire.com/..." : "https://...";
+      if (typeSelect.value === "app") {
+        if (appOnly) appOnly.style.display = "block";
+        if (urlLabel) urlLabel.textContent = "الرابط المباشر للتحميل (MediaFire / APK) — سيظهر بوضوح في البطاقة";
+        if (urlInput) urlInput.placeholder = "https://www.mediafire.com/...";
+      } else {
+        if (appOnly) appOnly.style.display = "none";
+        if (urlLabel) urlLabel.textContent = "رابط الموقع الإلكتروني — سيظهر بوضوح في البطاقة";
+        if (urlInput) urlInput.placeholder = "https://example.com";
       }
     }
 
@@ -6087,97 +6126,172 @@
       if (!file) return;
       pickedFileBlob = file;
       pickedFileName = file.name;
-      const mb = (file.size / (1024 * 1024)).toFixed(2);
-      pickedFileSize = `${mb} MB`;
-      const fLbl = byId("file-label-text");
-      if (fLbl) fLbl.textContent = `تم اختيار: ${file.name} (${pickedFileSize})`;
-      const titleInput = byId("proj-title");
-      if (titleInput && !titleInput.value.trim()) {
-        titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+      pickedFileSize = file.size >= 1048576
+        ? (file.size / 1048576).toFixed(1) + " MB"
+        : Math.max(1, Math.round(file.size / 1024)) + " KB";
+      const lbl = byId("file-label-text");
+      if (lbl) lbl.textContent = `تم اختيار الملف: ${file.name} (${pickedFileSize})`;
+    }
+
+    function serializeRichPayload(projectObj) {
+      return RICH_PAYLOAD_PREFIX + JSON.stringify({
+        type: projectObj.type,
+        version: projectObj.version,
+        meta: projectObj.meta || (projectObj.type === "app" ? "APK" : "Web"),
+        offline: Boolean(projectObj.offline),
+        shortDesc: projectObj.shortDesc || "",
+        changelog: projectObj.changelog || "",
+        features: Array.isArray(projectObj.features) ? projectObj.features : [],
+        coverImage: projectObj.coverImage || "",
+        detailImages: Array.isArray(projectObj.detailImages) ? projectObj.detailImages : [],
+        downloads: Number(projectObj.downloads || 0),
+        createdAt: projectObj.createdAt || Date.now()
+      });
+    }
+
+    function parseSupabaseRow(row) {
+      const rawDesc = typeof row.description === "string" ? row.description : "";
+      if (rawDesc.startsWith(RICH_PAYLOAD_PREFIX)) {
+        try {
+          const parsed = JSON.parse(rawDesc.slice(RICH_PAYLOAD_PREFIX.length));
+          const normalized = normalizeProjectItem({
+            id: "sb-" + row.id,
+            remoteId: row.id,
+            rawRowData: row,
+            createdAt: parsed.createdAt || Date.now(),
+            type: parsed.type === "website" ? "website" : "app",
+            title: row.name || "مشروع بدون اسم",
+            version: parsed.version || "v1.0",
+            meta: parsed.meta || (parsed.type === "app" ? "APK" : "Web"),
+            offline: parsed.type === "app" ? Boolean(parsed.offline) : false,
+            shortDesc: parsed.shortDesc || "",
+            changelog: parsed.changelog || "",
+            features: Array.isArray(parsed.features) ? parsed.features : [],
+            coverImage: parsed.coverImage || "",
+            detailImages: Array.isArray(parsed.detailImages) ? parsed.detailImages : [],
+            downloads: Number(parsed.downloads || 0),
+            url: sanitizeUrl(row.url)
+          });
+          return normalized;
+        } catch (e) {}
       }
+
+      const isSite = (row.url || "").startsWith("http") && !(row.url || "").toLowerCase().includes("mediafire");
+      return normalizeProjectItem({
+        id: "sb-" + row.id,
+        remoteId: row.id,
+        rawRowData: row,
+        createdAt: Date.now(),
+        type: isSite ? "website" : "app",
+        title: row.name || "مشروع",
+        version: "v1.0",
+        meta: isSite ? "Web" : "APK",
+        offline: !isSite,
+        shortDesc: rawDesc || "برنامج أو موقع منشور عبر JadDev.",
+        changelog: "",
+        features: ["مجاني بالكامل", "متوافق مع الموبايل"],
+        coverImage: "",
+        detailImages: [],
+        downloads: 0,
+        url: sanitizeUrl(row.url)
+      });
     }
 
     async function saveProjectForm(e) {
       e.preventDefault();
       if (!isOwner()) return;
 
-      const type = byId("proj-type").value;
-      const version = byId("proj-version").value.trim() || "v1.0";
-      const title = byId("proj-title").value.trim();
-      const shortDesc = byId("proj-desc").value.trim();
-      const changelog = byId("proj-changelog").value.trim();
-      const offline = type === "app" ? byId("proj-offline").checked : false;
-      const rawUrl = sanitizeUrl(byId("proj-url").value.trim());
-
-      const singleInp = byId("feature-single-input");
-      const singleVal = singleInp ? singleInp.value.trim() : "";
-      if (singleVal && !draftFeatures.includes(singleVal)) {
-        draftFeatures.push(singleVal);
+      const saveBtn = byId("save-proj-btn");
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "جاري الحفظ والمزامنة...";
       }
 
-      const features = draftFeatures.length
-        ? [...draftFeatures]
-        : (offline ? ["يعمل بدون إنترنت", "مجاني بالكامل"] : ["سريع وخفيف", "مجاني بالكامل"]);
-
-      const existing = editingProjectId ? getAllCombinedProjects().find(p => p.id === editingProjectId) : null;
-      const finalId = editingProjectId || ("proj-" + Date.now());
-      const finalRemoteId = existing ? (existing.remoteId || null) : null;
-
-      let finalUrl = rawUrl !== "#" ? rawUrl : "#";
-      let meta = pickedFileSize || (existing ? existing.meta : (type === "app" ? "APK" : "Web"));
-
-      const projectObj = {
-        id: finalId,
-        remoteId: finalRemoteId,
-        createdAt: existing ? (existing.createdAt || Date.now()) : Date.now(),
-        type,
-        title,
-        version,
-        meta,
-        offline,
-        shortDesc,
-        changelog,
-        features,
-        coverImage: pickedCoverImage || "",
-        detailImages: [...pickedDetailImages],
-        downloads: existing ? (Number(existing.downloads) || 0) : 0,
-        fileBlob: pickedFileBlob || (existing ? existing.fileBlob : null),
-        fileName: pickedFileName || (existing ? existing.fileName : ""),
-        url: finalUrl
-      };
-
       try {
-        await upsertProjectInDB(projectObj);
+        const pendingFeatInput = byId("feature-single-input");
+        if (pendingFeatInput && pendingFeatInput.value.trim()) {
+          const extra = pendingFeatInput.value.trim();
+          if (!draftFeatures.includes(extra)) draftFeatures.push(extra);
+          pendingFeatInput.value = "";
+        }
+
+        const type = byId("proj-type")?.value || "app";
+        const version = (byId("proj-version")?.value || "").trim() || "v1.0";
+        const title = (byId("proj-title")?.value || "").trim();
+        const rawUrl = (byId("proj-url")?.value || "").trim();
+        const shortDesc = (byId("proj-desc")?.value || "").trim();
+        const changelog = (byId("proj-changelog")?.value || "").trim();
+        const offline = type === "app" ? Boolean(byId("proj-offline")?.checked) : false;
+
+        if (!title || !shortDesc) {
+          throw new Error("يرجى إدخال اسم ووصف المشروع.");
+        }
+
+        const existingItem = editingProjectId
+          ? getAllCombinedProjects().find(p => p.id === editingProjectId)
+          : null;
+
+        const finalUrl = rawUrl
+          ? sanitizeUrl(rawUrl)
+          : (pickedFileBlob instanceof Blob
+              ? URL.createObjectURL(pickedFileBlob)
+              : (existingItem && existingItem.url && !existingItem.url.startsWith("blob:") ? existingItem.url : "#"));
+
+        const features = draftFeatures.length > 0
+          ? [...draftFeatures]
+          : (type === "app"
+              ? [offline ? "يعمل بدون إنترنت" : "متصل بالشبكة", "مجاني بالكامل"]
+              : ["متصفح ويب", "مجاني بالكامل"]);
+
+        const projectRecord = {
+          id: existingItem ? existingItem.id : ("proj-" + Date.now() + "-" + Math.random().toString(36).slice(2, 5)),
+          remoteId: existingItem ? existingItem.remoteId || null : null,
+          createdAt: existingItem && existingItem.createdAt ? existingItem.createdAt : Date.now(),
+          type,
+          title,
+          version,
+          meta: pickedFileSize || (type === "app" ? "APK" : "Web"),
+          offline,
+          shortDesc,
+          changelog,
+          features,
+          coverImage: pickedCoverImage || "",
+          detailImages: [...pickedDetailImages],
+          downloads: existingItem ? Number(existingItem.downloads || 0) : 0,
+          fileBlob: pickedFileBlob || (existingItem ? existingItem.fileBlob || null : null),
+          fileName: pickedFileName || (existingItem ? existingItem.fileName || "" : ""),
+          url: finalUrl
+        };
+
+        await upsertProjectInDB(projectRecord);
         closeAddModal();
         renderStats();
         applyFilters();
         renderAdminQuickKPIs();
-
-        if (typeof window.saveProjectToSupabase === "function") {
-          window.saveProjectToSupabase(projectObj, finalRemoteId).catch(() => {});
+        if (byId("manage-modal-backdrop")?.classList.contains("open")) {
+          renderAdminManageList();
         }
 
-        if (existing) {
-          pushNotification("تم التحديث", `تم تعديل "${title}" ومزامنته مع السحابة.`, true, false, finalId, "تحديث");
-        } else {
-          pushNotification(
-            type === "app" ? "تطبيق جديد متاح" : "موقع جديد متاح",
-            `تمت إضافة "${title}" (${version}) مجاناً على JadDev`,
-            true,
-            true,
-            finalId,
-            type === "app" ? "تطبيق جديد" : "موقع جديد"
-          );
-        }
-      } catch (err) {
+        const wasEditing = Boolean(existingItem);
         pushNotification(
-          "تعذّر الحفظ المحلي",
-          "مساحة التخزين ممتلئة أو الملف كبير جداً. استخدم رابط MediaFire المباشر وصورة أصغر.",
+          wasEditing ? "تم تحديث المشروع" : "تم النشر بنجاح",
+          wasEditing
+            ? `تم حفظ تعديلات "${title}" ومزامنتها.`
+            : `تم نشر "${title}" (${version}) بنجاح.`,
           true,
-          false,
-          null,
-          "تنبيه"
+          true,
+          projectRecord.id,
+          wasEditing ? "تحديث" : "إضافة جديدة"
         );
+
+        await window.saveProjectToSupabase(projectRecord, projectRecord.remoteId);
+      } catch (err) {
+        pushNotification("تعذّر الحفظ", err?.message || "حدث خطأ أثناء حفظ المشروع.", true, false, null, "خطأ");
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = editingProjectId ? "حفظ التعديلات ومزامنة Supabase" : "نشر في الموقع ومزامنة Supabase";
+        }
       }
     }
 
@@ -6186,156 +6300,82 @@
       const item = getAllCombinedProjects().find(p => p.id === id);
       if (!item || item.source === "github") return;
       pendingDeleteId = id;
-      const txtEl = byId("delete-confirm-text");
-      if (txtEl) {
-        txtEl.textContent = `هل أنت متأكد أنك تريد حذف "${item.title}" نهائياً؟`;
+      const txt = byId("delete-confirm-text");
+      if (txt) {
+        txt.textContent = `هل أنت متأكد أنك تريد حذف "${item.title}" نهائياً من الموقع وقاعدة البيانات؟`;
       }
-      const backdrop = byId("confirm-delete-backdrop");
-      if (backdrop) backdrop.classList.add("open");
+      const modal = byId("confirm-delete-backdrop");
+      if (modal) modal.classList.add("open");
     }
 
     function closeDeleteConfirm() {
       pendingDeleteId = null;
-      const backdrop = byId("confirm-delete-backdrop");
-      if (backdrop) backdrop.classList.remove("open");
+      const modal = byId("confirm-delete-backdrop");
+      if (modal) modal.classList.remove("open");
     }
 
     async function confirmDeleteAction() {
       if (!isOwner() || !pendingDeleteId) return;
-      const idToDelete = pendingDeleteId;
-      const target = getAllCombinedProjects().find(p => p.id === idToDelete);
-      const remoteIdToDelete = target ? target.remoteId : null;
+      const id = pendingDeleteId;
       closeDeleteConfirm();
 
-      if (target) {
-        await deleteProjectFromDB(idToDelete);
-        supabaseRemoteProjects = supabaseRemoteProjects.filter(p => p.id !== idToDelete && p.remoteId !== remoteIdToDelete);
-        bookmarkedIds.delete(idToDelete);
-        try {
-          localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(Array.from(bookmarkedIds)));
-        } catch (e) {}
-        renderStats();
-        applyFilters();
-        renderAdminManageList();
-        renderAdminQuickKPIs();
-        if (remoteIdToDelete && typeof window.deleteProjectFromSupabase === "function") {
-          window.deleteProjectFromSupabase(remoteIdToDelete).catch(() => {});
-        }
-        pushNotification("تم الحذف نهائياً", `تمت إزالة "${target.title}".`, true, false, null, "حذف");
-      }
-    }
-
-    function shareOrCopyProject(id, copyOnly = false) {
       const item = getAllCombinedProjects().find(p => p.id === id);
-      if (!item) return;
-      const shareUrl = item.url && !item.url.startsWith("blob:") && item.url !== "#" ? item.url : window.location.href;
+      await deleteProjectFromDB(id);
 
-      if (!copyOnly && navigator.share) {
-        navigator.share({
-          title: `${item.title} | JadDev`,
-          text: item.shortDesc,
-          url: shareUrl
-        }).catch(() => {});
-        return;
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(shareUrl).then(() => {
-          pushNotification("تم نسخ الرابط", `تم نسخ رابط "${item.title}" بنجاح.`, true, false, item.id, "مشاركة");
-        }).catch(() => {
-          fallbackCopyText(shareUrl);
-          pushNotification("تم نسخ الرابط", `تم نسخ رابط "${item.title}" بنجاح.`, true, false, item.id, "مشاركة");
-        });
-      } else {
-        fallbackCopyText(shareUrl);
-        pushNotification("تم نسخ الرابط", `تم نسخ رابط "${item.title}" بنجاح.`, true, false, item.id, "مشاركة");
-      }
-    }
-
-    function serializeRichPayload(projectData) {
-      const payload = {
-        type: projectData.type || "app",
-        version: projectData.version || "v1.0",
-        meta: projectData.meta || "APK",
-        offline: Boolean(projectData.offline),
-        shortDesc: projectData.shortDesc || "",
-        changelog: projectData.changelog || "",
-        features: Array.isArray(projectData.features) ? projectData.features : [],
-        coverImage: projectData.coverImage || "",
-        detailImages: Array.isArray(projectData.detailImages) ? projectData.detailImages : [],
-        downloads: Number(projectData.downloads || 0),
-        createdAt: Number(projectData.createdAt || Date.now())
-      };
-      return RICH_PAYLOAD_PREFIX + JSON.stringify(payload);
-    }
-
-    function parseSupabaseRow(row) {
-      const rawDesc = row.description || "";
-      const rowUrl = sanitizeUrl(row.url || row.link || "#");
-      if (typeof rawDesc === "string" && rawDesc.startsWith(RICH_PAYLOAD_PREFIX)) {
+      if (item && item.remoteId) {
+        supabaseRemoteProjects = supabaseRemoteProjects.filter(p => p.id !== id);
         try {
-          const parsed = JSON.parse(rawDesc.slice(RICH_PAYLOAD_PREFIX.length));
-          return normalizeProjectItem({
-            id: "sb-" + row.id,
-            remoteId: row.id,
-            rawRowData: row,
-            createdAt: parsed.createdAt || (row.created_at ? new Date(row.created_at).getTime() : Date.now()),
-            type: parsed.type || "app",
-            title: row.name || row.title || "مشروع JadDev",
-            version: parsed.version || "v1.0",
-            meta: parsed.meta || "APK",
-            offline: Boolean(parsed.offline),
-            shortDesc: parsed.shortDesc || "",
-            changelog: parsed.changelog || "",
-            features: Array.isArray(parsed.features) ? parsed.features : ["مجاني بالكامل"],
-            coverImage: parsed.coverImage || row.image_url || row.image || "",
-            detailImages: Array.isArray(parsed.detailImages) ? parsed.detailImages : [],
-            downloads: Number(parsed.downloads || 0),
-            url: rowUrl
-          });
-        } catch (err) {}
+          const snap = safeJsonParse(localStorage.getItem(CLOUD_SNAPSHOT_KEY), []);
+          if (Array.isArray(snap)) {
+            localStorage.setItem(CLOUD_SNAPSHOT_KEY, JSON.stringify(snap.filter(r => r.id !== item.remoteId)));
+          }
+        } catch (e) {}
       }
 
-      const fallbackType = (rowUrl && rowUrl !== "#" && !rowUrl.toLowerCase().includes("mediafire") && !rowUrl.toLowerCase().endsWith(".apk"))
-        ? "website"
-        : "app";
+      renderStats();
+      applyFilters();
+      renderAdminQuickKPIs();
+      if (byId("manage-modal-backdrop")?.classList.contains("open")) {
+        renderAdminManageList();
+      }
+      pushNotification("تم الحذف", `تم حذف "${item ? item.title : "العنصر"}" بنجاح.`, true, false, null, "حذف");
 
-      return normalizeProjectItem({
-        id: "sb-" + row.id,
-        remoteId: row.id,
-        rawRowData: row,
-        createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
-        type: row.type || fallbackType,
-        title: row.name || row.title || "مشروع JadDev",
-        version: row.version || "v1.0",
-        meta: row.meta || (fallbackType === "app" ? "APK" : "Web"),
-        offline: typeof row.offline === "boolean" ? row.offline : (fallbackType === "app"),
-        shortDesc: rawDesc || "أداة ومشروع مجاني من تطوير Jad Koudmani.",
-        changelog: row.changelog || "",
-        features: Array.isArray(row.features) ? row.features : ["مجاني بالكامل"],
-        coverImage: row.image_url || row.image || "",
-        detailImages: Array.isArray(row.detail_images) ? row.detail_images : [],
-        downloads: Number(row.downloads || 0),
-        url: rowUrl
-      });
+      if (item && item.remoteId && typeof window.deleteProjectFromSupabase === "function") {
+        await window.deleteProjectFromSupabase(item.remoteId);
+      }
     }
 
-    (async function boot() {
-      if (localStorage.getItem(GLASS_MODE_KEY) === "crystal") {
+    async function bootJadDev() {
+      const savedGlass = localStorage.getItem(GLASS_MODE_KEY);
+      if (savedGlass === "crystal") {
         document.body.classList.add("crystal-glass");
       }
+
       updateNetworkBadge();
-      registerServiceWorker();
-      updateNotifBadge();
       hydrateInstantSnapshot();
+      renderStats();
+      applyFilters();
+      updateNotifBadge();
+      syncAuthUI();
+      registerServiceWorker();
+
       await initDB();
       await loadProjectsFromDB();
-      syncAuthUI();
+      renderStats();
+      applyFilters();
+      renderAdminQuickKPIs();
 
-      // Fetch Cloud & GitHub asynchronously without blocking UI
       loadCloudProjects(false);
       syncGitHubNow(false);
-    })();
+
+      setInterval(() => {
+        if (navigator.onLine !== false && document.visibilityState === "visible") {
+          loadCloudProjects(false);
+        }
+      }, 25000);
+    }
+
+    bootJadDev();
   </script>
 </body>
 </html>
